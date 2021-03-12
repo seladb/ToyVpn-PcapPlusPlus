@@ -26,6 +26,8 @@ import android.os.ParcelFileDescriptor;
 import android.text.TextUtils;
 import android.util.Log;
 
+import com.example.android.pcapplusplus.PcapPlusPlusInterface;
+
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -209,6 +211,7 @@ public class ToyVpnConnection implements Runnable {
                     // Write the outgoing packet to the tunnel.
                     packet.limit(length);
                     tunnel.write(packet);
+                    PcapPlusPlusInterface.INSTANCE.analyzePacket(packet);
                     packet.clear();
 
                     // There might be more outgoing packets.
@@ -224,6 +227,7 @@ public class ToyVpnConnection implements Runnable {
                         // Write the incoming packet to the output stream.
                         out.write(packet.array(), 0, length);
                     }
+                    PcapPlusPlusInterface.INSTANCE.analyzePacket(packet);
                     packet.clear();
 
                     // There might be more incoming packets.
