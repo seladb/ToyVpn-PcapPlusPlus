@@ -2,18 +2,13 @@
 #include <sstream>
 #include <jni.h>
 #include <android/log.h>
-#include <PacketUtils.h>
-#include <Packet.h>
-#include <DnsLayer.h>
-#include <SSLLayer.h>
-#include <PcapFileDevice.h>
-//#include "../../../libs/pcapplusplus/include/PacketUtils.h"
-//#include "../../../libs/pcapplusplus/include/Packet.h"
-//#include "../../../libs/pcapplusplus/include/DnsLayer.h"
-//#include "../../../libs/pcapplusplus/include/SSLLayer.h"
-//#include "../../../libs/pcapplusplus/include/PcapFileDevice.h"
+#include "../../../libs/pcapplusplus/include/PacketUtils.h"
+#include "../../../libs/pcapplusplus/include/Packet.h"
+#include "../../../libs/pcapplusplus/include/DnsLayer.h"
+#include "../../../libs/pcapplusplus/include/SSLLayer.h"
+#include "../../../libs/pcapplusplus/include/PcapFileDevice.h"
 
-const char* TAG = "";
+const char* TAG = "PcapPlusPlusNativeInterface";
 
 #define LOGV(...) __android_log_print(ANDROID_LOG_VERBOSE, TAG, __VA_ARGS__)
 #define LOGW(...) __android_log_print(ANDROID_LOG_WARN, TAG, __VA_ARGS__)
@@ -63,7 +58,7 @@ private:
 
 extern "C"
 JNIEXPORT void JNICALL
-Java_com_example_android_pcapplusplus_PcapPlusPlusInterface_initPcapFileNative(JNIEnv *env, jobject thiz, jstring filesDir) {
+Java_com_example_android_pcapplusplus_PcapPlusPlusInterface_openPcapFileNative(JNIEnv *env, jobject thiz, jstring filesDir) {
     jboolean isCopy;
     const char* filesDirAsCharArray = (env)->GetStringUTFChars(filesDir, &isCopy);
     std::string filesDirString = std::string(filesDirAsCharArray, strlen(filesDirAsCharArray));
@@ -72,6 +67,13 @@ Java_com_example_android_pcapplusplus_PcapPlusPlusInterface_initPcapFileNative(J
     if (!PcapFileSingleton::getInstance().init(pcapFilePath)) {
         LOGE("Error opening pcap file!");
     }
+}
+
+extern "C"
+JNIEXPORT void JNICALL
+Java_com_example_android_pcapplusplus_PcapPlusPlusInterface_closePcapFileNative(JNIEnv *env, jobject thiz) {
+    PcapFileSingleton::getInstance().close();
+    LOGI("Pcap file closed");
 }
 
 extern "C"

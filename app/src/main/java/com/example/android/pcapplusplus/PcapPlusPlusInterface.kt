@@ -6,18 +6,24 @@ import java.nio.ByteBuffer
 import java.time.Instant
 
 object PcapPlusPlusInterface {
+    private val TAG = PcapPlusPlusInterface::class.simpleName
     private var stats: NetworkStats = NetworkStats()
     private var timestamp: Instant = Instant.now()
     private external fun analyzePacketNative(packet: ByteArray, packetLength: Int) : String
-    private external fun initPcapFileNative(filesDir: String);
+    private external fun openPcapFileNative(filesDir: String);
+    private external fun closePcapFileNative();
 
-    fun init(filesDir: String) {
-        initPcapFileNative(filesDir)
+    fun openPcapFile(filesDir: String) {
+        openPcapFileNative(filesDir)
+    }
+
+    fun closePcapFile() {
+        closePcapFileNative()
     }
 
     fun analyzePacket(packet: ByteBuffer) {
         if (Instant.now().epochSecond > timestamp.epochSecond + 5) {
-            Log.println(Log.INFO, null, stats.toString())
+            Log.i(TAG, "Packet stats:\n" + stats.toString())
             timestamp = Instant.now()
         }
         val dataAsString = analyzePacketNative(packet.array(), packet.position())

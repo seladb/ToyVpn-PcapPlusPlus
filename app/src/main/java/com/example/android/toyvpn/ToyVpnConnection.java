@@ -200,6 +200,8 @@ public class ToyVpnConnection implements Runnable {
             long lastSendTime = System.currentTimeMillis();
             long lastReceiveTime = System.currentTimeMillis();
 
+            PcapPlusPlusInterface.INSTANCE.openPcapFile(mService.getApplication().getFilesDir().toString());
+
             // We keep forwarding packets till something goes wrong.
             while (true) {
                 // Assume that we did not make any progress in this iteration.
@@ -267,6 +269,7 @@ public class ToyVpnConnection implements Runnable {
                     Log.e(getTag(), "Unable to close interface", e);
                 }
             }
+            PcapPlusPlusInterface.INSTANCE.closePcapFile();
         }
         return connected;
     }
