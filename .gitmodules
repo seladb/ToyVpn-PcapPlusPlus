@@ -1,0 +1,3 @@
+[submodule "app/libs/libpcap-android"]
+	path = app/libs/libpcap-android
+	url = https://github.com/seladb/libpcap-android
