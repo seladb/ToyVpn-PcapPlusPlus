@@ -3,12 +3,20 @@
 This project demonstrates how PcapPlusPlus can be used in Android apps.
 It is built on top of [Android's ToyVpn Example](https://android.googlesource.com/platform/development/+/master/samples/ToyVpn) and adds a layer of network traffic analysis for the packets processed by ToyVPN.
 
+## Table Of Contents
+
+- [What does it do?](#what-does-it-do)
+- [Build and run](#build-and-run-instructions)
+- [Project design](#project-design)
+
+## What does it do?
+TBD
 
 ## Build and run instructions
 
 Please follow these guidelines to get a working version of this app:
 
-### Step 0: Clone ToyVpn-PcapPlusPlus with submodules
+### Step 0: Clone with submodules
 When you clone this project from GitHub please make sure to clone it with submodules:
 ```shell
 git clone --recurse-submodules https://github.com/seladb/ToyVpn-PcapPlusPlus
@@ -36,7 +44,7 @@ git clone --recurse-submodules https://github.com/seladb/ToyVpn-PcapPlusPlus
     ```
 
 - Set `--ndk-path` to your Android NDK path
-- Set `--pcapplusplus-path` to the path where you clone PcapPlusPlus
+- Set `--pcapplusplus-path` to the path where you cloned PcapPlusPlus
 - The `--target` is not mandatory. Use it only if you want to build PcapPlusPlus for a specific target
 - The script takes a few minutes to run and will build PcapPlusPlus libraries for API version 29 on all 4 targets (`arm64-v8a`, `armeabi-v7a`, `x86`, `x86_64`)
 - The libraries and PcapPlusPlus header files will be copied to this location: `app/libs/pcapplusplus`
@@ -80,4 +88,5 @@ chmod +x gradlew
 ./gradlew assembleDebug
 ```
 
-
+## Project design
+TBD
