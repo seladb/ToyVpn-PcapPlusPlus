@@ -1,4 +1,5 @@
 #!/bin/bash
+set -e
 
 API_VERSION=29
 TARGETS="arm64-v8a armeabi-v7a x86 x86_64"
@@ -8,9 +9,9 @@ SCRIPT=`basename ${BASH_SOURCE[0]}`
 
 # help function
 function HELP {
-    echo -e \\n"Help documentation for ${SCRIPT}."\\n
+    echo -e \\n"Help documentation for ${SCRIPT}."
     echo ""
-    echo -e "Basic usage: $SCRIPT [-h] [--ndk-path] [--pcapplusplus-path]"\\n
+    echo -e "Basic usage: $SCRIPT [-h] [--ndk-path] [--pcapplusplus-path] [--target]"\\n
     echo "The following switches are recognized:"
     echo "--ndk-path             --The path of Android NDK, for example: '/opt/Android/Sdk/ndk/22.0.7026061'"
     echo "--pcapplusplus-path    --The path of PcapPlusPlus source code"
@@ -21,7 +22,7 @@ function HELP {
 
 function TRANSLATE_TARGET {
     if [ "$1" == "arm64-v8a" ]; then
-        echo "arm64-v8a"
+        echo "aarch64-linux-android"
         return 0
     fi
     if [ "$1" == "armeabi-v7a" ]; then
@@ -116,8 +117,9 @@ fi
 
 LIBS_PATH=$(pwd)/app/libs
 
-LIBPCAP_INCLUDE_DIR=$LIBS_PATH/libpcap/include
-LIBPCAP_LIB_DIR=$LIBS_PATH/libpcap/arm/29
+LIBPCAP_INCLUDE_DIR=$LIBS_PATH/libpcap-android/include
+# LIBPCAP_LIB_DIR doesn't really matter if you only build PcapPlusPlus libs
+LIBPCAP_LIB_DIR=$LIBS_PATH/libpcap-android/armeabi-v7a/29
 
 for TARGET in ${TARGETS}
 do
