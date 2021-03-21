@@ -20,25 +20,6 @@ function HELP {
     echo ""
 }
 
-function TRANSLATE_TARGET {
-    if [ "$1" == "arm64-v8a" ]; then
-        echo "aarch64-linux-android"
-        return 0
-    fi
-    if [ "$1" == "armeabi-v7a" ]; then
-        echo "armv7a-linux-androideabi"
-        return 0
-    fi
-    if [ "$1" == "x86" ]; then
-        echo "i686-linux-android"
-        return 0
-    fi
-    if [ "$1" == "x86_64" ]; then
-        echo "x86_64-linux-android"
-        return 0
-    fi
-}
-
 # these are all the possible switches
 OPTS=`getopt -o h --long ndk-path:,pcapplusplus-path:,target: -- "$@"`
 
@@ -123,7 +104,7 @@ LIBPCAP_LIB_DIR=$LIBS_PATH/libpcap-android/armeabi-v7a/29
 
 for TARGET in ${TARGETS}
 do
-    cd $PCAPPLUSPLUS_PATH && ./configure-android.sh --ndk-path $NDK_PATH --target $(TRANSLATE_TARGET $TARGET) --api $API_VERSION --libpcap-include-dir $LIBPCAP_INCLUDE_DIR --libpcap-lib-dir $LIBPCAP_LIB_DIR
+    cd $PCAPPLUSPLUS_PATH && ./configure-android.sh --ndk-path $NDK_PATH --target $TARGET --api $API_VERSION --libpcap-include-dir $LIBPCAP_INCLUDE_DIR --libpcap-lib-dir $LIBPCAP_LIB_DIR
     cd $PCAPPLUSPLUS_PATH && make clean && make libs
     PCAPPLUSPLUS_LIB_PATH=$LIBS_PATH/pcapplusplus/$TARGET/$API_VERSION
     mkdir -p $PCAPPLUSPLUS_LIB_PATH
