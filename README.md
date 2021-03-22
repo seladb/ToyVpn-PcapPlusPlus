@@ -5,16 +5,44 @@ It is built on top of [Android's ToyVpn Example](https://android.googlesource.co
 
 ## Table Of Contents
 
-- [What does it do?](#what-does-it-do)
+- [ToyVpn](#toyvpn)
+- [ToyVpn & PcapPlusPlus](#ToyVpn-&-PcapPlusPlus)
 - [Build and run](#build-and-run-instructions)
-- [Project design](#project-design)
+- [Technical details](#technical-details)
 
-## What does it do?
-TBD
+## ToyVpn
+
+[ToyVpn](https://android.googlesource.com/platform/development/+/master/samples/ToyVpn) is an Android example app provided by Google that demonstrates Android APIs to create VPN solutions. You can read more about it in the [Android documentation](https://developer.android.com/guide/topics/connectivity/vpn).
+
+ToyVpn uses [`VpnService`](https://developer.android.com/reference/android/net/VpnService) to handle incoming and outgoing network traffic, which means is has access to all of the network packets going through the VPN (which is otherwise not possible on non-rooted devices). This makes it a great example of how PcapPlusPlus can be used in Android apps and run on any device without special requirements such as a rooted device.
+
+## ToyVpn & PcapPlusPlus
+
+__ToyVpn-PcapPlusPlus__ is a version of ToyVpn that uses PcapPlusplus to gather data and metrics on the network traffic that goes through the VPN. It collects data such as packet count of different protocols (IPv4, IPv6, DNS, TLS, etc.), TCP connections, DNS requests and responses, TLS versions, TLS Server Name Indication (SNI), and more. These metrics are collected and written to the app's log. In addition to data collection, all of the network traffic is captured and saved to a pcap file that can be used for further investigation.
+
+Here is a screenshot of the app which is similar to ToyVpn's original UI, nothing was changed on that front:
+
+<img src="docs/screenshot.png" width="300" />
+
+And here is an example of the metrics collected by the app (as written to the app's log):
+
+```shell
+03-19 00:57:33.076  6085  6130 I PcapPlusPlusInterface: Packet stats:
+03-19 00:57:33.076  6085  6130 I PcapPlusPlusInterface: Packets=2639
+03-19 00:57:33.076  6085  6130 I PcapPlusPlusInterface: IPv4=2620
+03-19 00:57:33.076  6085  6130 I PcapPlusPlusInterface: IPv6=11
+03-19 00:57:33.076  6085  6130 I PcapPlusPlusInterface: TCP=2583
+03-19 00:57:33.076  6085  6130 I PcapPlusPlusInterface: UDP=37
+03-19 00:57:33.076  6085  6130 I PcapPlusPlusInterface: Connections=48
+03-19 00:57:33.076  6085  6130 I PcapPlusPlusInterface: DNS_req=18
+03-19 00:57:33.076  6085  6130 I PcapPlusPlusInterface: DNS_res=19
+03-19 00:57:33.076  6085  6130 I PcapPlusPlusInterface: Top_TLS_Version=[(TLS 1.3, 27)]
+03-19 00:57:33.076  6085  6130 I PcapPlusPlusInterface: TOP_SNI=[(i.ytimg.com, 4), (cdn.ampproject.org, 4), (lh5.googleusercontent.com, 2), (google.com, 2), (googleads.g.doubleclick.net, 2)]
+```
 
 ## Build and run instructions
 
-Please follow these guidelines to get a working version of this app:
+Please follow the steps below to get a working version of the app:
 
 ### Step 0: Clone with submodules
 When you clone this project from GitHub please make sure to clone it with submodules:
@@ -88,5 +116,14 @@ chmod +x gradlew
 ./gradlew assembleDebug
 ```
 
-## Project design
+## Technical details
+
+In this section we'll go over some technical details around how the app works and the changes that were made to use PcapPlusPlus for collecting network traffic metrics.
+
+We won't cover the details of how VPN is supported in Android because there is very good documentation in the [Android web-site](https://developer.android.com/guide/topics/connectivity/vpn).
+
+Instead, let's talk about the different parts of the app:
+
+<img src="docs/architecture.png"/>
+
 TBD
