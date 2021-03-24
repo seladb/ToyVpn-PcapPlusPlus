@@ -6,7 +6,7 @@ It is built on top of [Android's ToyVpn Example](https://android.googlesource.co
 ## Table Of Contents
 
 - [ToyVpn](#toyvpn)
-- [ToyVpn & PcapPlusPlus](#ToyVpn-&-PcapPlusPlus)
+- [ToyVpn & PcapPlusPlus](#ToyVpn--PcapPlusPlus)
 - [Build and run](#build-and-run-instructions)
 - [Technical details](#technical-details)
 
@@ -118,12 +118,59 @@ chmod +x gradlew
 
 ## Technical details
 
-In this section we'll go over some technical details around how the app works and the changes that were made to use PcapPlusPlus for collecting network traffic metrics.
+In this section we'll go over some technical details around how the app works and what changes have been made to use PcapPlusPlus for collecting network traffic metrics.
 
-We won't cover the details of how VPN is supported in Android because there is very good documentation in the [Android web-site](https://developer.android.com/guide/topics/connectivity/vpn).
+We won't go into the details of how Android SDK supports VPN because it's already covered in great details in [Android documentation](https://developer.android.com/guide/topics/connectivity/vpn).
 
-Instead, let's talk about the different parts of the app:
+Instead, let's talk about the main parts of the app:
 
 <img src="docs/architecture.png"/>
 
-TBD
+The original ToyVpn consists of 2 components:
+- The ToyVpn Android app which includes the UI and the VPN client
+- The Server which runs on a separate Linux machine and serves as the VPN gateway between the app and the "outside world"
+
+The flow goes like this:
+- The app establishes a VPN tunnel with the server
+- All of the network traffic from the device is channeled through that VPN tunnel
+- The server listens to the tunnel, accepts new connections from the device and opens connections to the remote destination on the Internet
+- Once a connection has been established, the server passes the network traffic back and forth between the device and the remote destination
+
+Now let's talk about the main building blocks of the app, starting with ToyVpn's original components.
+
+### ToyVpn original components
+
+- `ToyVpnClient` - an Android `Activity` class which is mostly in charge of the UI
+- `ToyVpnService` - extends Android's [`VpnService`](https://developer.android.com/reference/android/net/VpnService) and takes care of the VPN configuration
+- `ToyVpnConnection` - does most of the heavy lifting - it runs in a separate thread and takes care of connecting to the server and passing all of the network traffic from the device to the server and back
+
+As you may already understand, the component to hook into for network traffic analysis is `ToyVpnConnection`. Before we talk more about that, let's talk about the native side of the app and how PcapPlusPlus is being used.
+
+### The native code
+
+There is one file that contains native code: [`app/src/main/cpp/pcapplusplus_interface.cpp`](https://github.com/seladb/ToyVpn-PcapPlusPlus/blob/master/app/src/main/cpp/pcapplusplus_interface.cpp).
+This file contains 3 JNI methods:
+- `openPcapFileNative()` - opens a pcapng file for writing using PcapPlusPlus [`PcapNgFileWriterDevice`](https://pcapplusplus.github.io/api-docs/classpcpp_1_1_pcap_ng_file_writer_device.html)
+- `closePcapFileNative()` - closes the pcapng file
+- `analyzePacketNative()` - takes a raw packet (which is basically a byte array), parses it into PcapPlusPlus [`Packet`](https://pcapplusplus.github.io/api-docs/classpcpp_1_1_packet.html) object and then goes over the different layers of the packet to extracts the information we want to collect. For example: 
+  - Protocol analysis (IPv4, IPv6, TCP, UDP, etc.)
+  - Connection information
+  - For DNS packets: get an indication whether it's a request or response
+  - For TLS ClientHello/ServerHello packets: collect the Server Name Indication (SNI) and the TLS version
+
+  These metrics are written to a string in JSON format and passed back to the app which collects and aggregates them.
+
+In addition to `pcapplusplus_interface.cpp` we have a CMake file `CMakeLists.txt` that links with PcapPlusPlus pre-compiled libraries and builds the native shared library (`pcapplusplus-interface`).
+
+### PcapPlusPlusInterface
+
+`PcapPlusPlusInterface` is a singelton class written in Kotlin. As its name suggests it's the interface between the app and the native code. It loads the native library (`pcapplusplus-interface`) and exposes 3 methods:
+- `openPcapFile()` - calls the native code to open the pcapng file
+- `closePcapFile()` - calls the native code to close the pcapng file
+- `analyzePacket()` - accepts a raw packet (`ByteBuffer`) as a parameter, passes it to the native library which in turn analyzes the packet using PcapPlusPlus, gets back the results in JSON format, and aggregates them in an aggregator class called `NetworkStats`
+
+### ToyVpn vs. PcapPlusPlusInterface
+
+The last part we need to talk about is how we hook `PcapPlusPlusInterface` into ToyVpn components. As we mentioned before, most of the heavy lifting in terms of network traffic processing is done by `ToyVpnConnection`. That is the perfect place to hook `PcapPlusPlusInterface`:
+- We call `PcapPlusPlusInterface.INSTANCE.openPcapFile()` before the connection to the server is established and `PcapPlusPlusInterface.INSTANCE.closePcapFile()` when it's closed
+- We call `PcapPlusPlusInterface.INSTANCE.analyzePacket()` whenever a packet is sent to the server or when it's received from the server
