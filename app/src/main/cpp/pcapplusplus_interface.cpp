@@ -105,9 +105,6 @@ Java_com_example_android_pcapplusplus_PcapPlusPlusInterface_analyzePacketNative(
         if (parsedPacket.isPacketOfType(pcpp::TCP)) {
             sstream << ",'tcp': 1";
         }
-        if (parsedPacket.isPacketOfType(pcpp::TCP)) {
-            sstream << ",'tcp': 1";
-        }
         if (parsedPacket.isPacketOfType(pcpp::UDP)) {
             sstream << ",'udp': 1";
         }
