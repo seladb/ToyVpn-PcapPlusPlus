@@ -18,26 +18,26 @@ const char* TAG = "PcapPlusPlusNativeInterface";
 class PcapFileSingleton {
 public:
     bool init(std::string filePath) {
-        if (m_PcapNgFile != NULL) {
+        if (m_PcapFile != NULL) {
             return true;
         }
-        m_PcapNgFile = new pcpp::PcapNgFileWriterDevice(filePath);
-        return m_PcapNgFile->open();
+        m_PcapFile = new pcpp::PcapFileWriterDevice(filePath, pcpp::LINKTYPE_DLT_RAW1);
+        return m_PcapFile->open();
     }
     bool isOpen() {
-        return m_PcapNgFile != NULL;
+        return m_PcapFile != NULL;
     }
-    pcpp::PcapNgFileWriterDevice* getPcapFileDevice() {
-        return m_PcapNgFile;
+    pcpp::PcapFileWriterDevice* getPcapFileDevice() {
+        return m_PcapFile;
     }
     void close() {
-        if (m_PcapNgFile == NULL) {
+        if (m_PcapFile == NULL) {
             return;
         }
-        LOGI("Closing pcap file: %s", m_PcapNgFile->getFileName().c_str());
-        m_PcapNgFile->close();
-        delete m_PcapNgFile;
-        m_PcapNgFile = NULL;
+        LOGI("Closing pcap file: %s", m_PcapFile->getFileName().c_str());
+        m_PcapFile->close();
+        delete m_PcapFile;
+        m_PcapFile = NULL;
 
     }
 
@@ -48,10 +48,10 @@ public:
     }
 private:
     // private default c'tor and d'tor because this object is a singleton
-    PcapFileSingleton() : m_PcapNgFile(NULL) {}
+    PcapFileSingleton() : m_PcapFile(NULL) {}
     ~PcapFileSingleton() { close(); }
 
-    pcpp::PcapNgFileWriterDevice* m_PcapNgFile;
+    pcpp::PcapFileWriterDevice* m_PcapFile;
 
 };
 
@@ -89,7 +89,7 @@ Java_com_example_android_pcapplusplus_PcapPlusPlusInterface_analyzePacketNative(
     else {
         timeval time;
         gettimeofday(&time, NULL);
-        pcpp::RawPacket rawPacket((const uint8_t*)packetBytes, packetLength, time, false, pcpp::LINKTYPE_RAW);
+        pcpp::RawPacket rawPacket((const uint8_t*)packetBytes, packetLength, time, false, pcpp::LINKTYPE_DLT_RAW1);
         if (PcapFileSingleton::getInstance().isOpen()) {
             PcapFileSingleton::getInstance().getPcapFileDevice()->writePacket(rawPacket);
         }

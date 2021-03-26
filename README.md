@@ -150,8 +150,8 @@ As you may already understand, the component to hook into for network traffic an
 
 There is one file that contains native code: [`app/src/main/cpp/pcapplusplus_interface.cpp`](https://github.com/seladb/ToyVpn-PcapPlusPlus/blob/master/app/src/main/cpp/pcapplusplus_interface.cpp).
 This file contains 3 JNI methods:
-- `openPcapFileNative()` - opens a pcapng file for writing using PcapPlusPlus [`PcapNgFileWriterDevice`](https://pcapplusplus.github.io/api-docs/classpcpp_1_1_pcap_ng_file_writer_device.html)
-- `closePcapFileNative()` - closes the pcapng file
+- `openPcapFileNative()` - opens a pcap file for writing using PcapPlusPlus [`PcapFileWriterDevice`](https://pcapplusplus.github.io/api-docs/classpcpp_1_1_pcap_file_writer_device.html)
+- `closePcapFileNative()` - closes the pcap file
 - `analyzePacketNative()` - takes a raw packet (which is basically a byte array), parses it into PcapPlusPlus [`Packet`](https://pcapplusplus.github.io/api-docs/classpcpp_1_1_packet.html) object and then goes over the different layers of the packet to extracts the information we want to collect. For example: 
   - Protocol analysis (IPv4, IPv6, TCP, UDP, etc.)
   - Connection information
@@ -165,8 +165,8 @@ In addition to `pcapplusplus_interface.cpp` we have a CMake file `CMakeLists.txt
 ### PcapPlusPlusInterface
 
 `PcapPlusPlusInterface` is a singelton class written in Kotlin. As its name suggests it's the interface between the app and the native code. It loads the native library (`pcapplusplus-interface`) and exposes 3 methods:
-- `openPcapFile()` - calls the native code to open the pcapng file
-- `closePcapFile()` - calls the native code to close the pcapng file
+- `openPcapFile()` - calls the native code to open the pcap file
+- `closePcapFile()` - calls the native code to close the pcap file
 - `analyzePacket()` - accepts a raw packet (`ByteBuffer`) as a parameter, passes it to the native library which in turn analyzes the packet using PcapPlusPlus, gets back the results in JSON format, and aggregates them in an aggregator class called `NetworkStats`
 
 ### ToyVpn vs. PcapPlusPlusInterface
