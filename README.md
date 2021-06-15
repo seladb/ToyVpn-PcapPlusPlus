@@ -83,7 +83,7 @@ This step describes how to build PcapPlusPlus from source:
 - Set `--ndk-path` to your Android NDK path
 - Set `--pcapplusplus-path` to the path where you cloned PcapPlusPlus
 - The `--target` is not mandatory. Use it only if you want to build PcapPlusPlus for a specific target
-- The script takes a few minutes to run and will build PcapPlusPlus libraries for API version 29 on all 4 targets (`arm64-v8a`, `armeabi-v7a`, `x86`, `x86_64`)
+- The script takes a few minutes to run and will build PcapPlusPlus libraries for API version 30 on all 4 targets (`arm64-v8a`, `armeabi-v7a`, `x86`, `x86_64`)
 - The libraries and PcapPlusPlus header files will be copied to this location: `app/libs/pcapplusplus`
 
 ### Step 2: Build and run the server
