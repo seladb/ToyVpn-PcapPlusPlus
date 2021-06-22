@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 
-API_VERSION=29
+API_VERSION=30
 TARGETS="arm64-v8a armeabi-v7a x86 x86_64"
 
 # set Script Name variable
@@ -100,7 +100,7 @@ LIBS_PATH=$(pwd)/app/libs
 
 LIBPCAP_INCLUDE_DIR=$LIBS_PATH/libpcap-android/include
 # LIBPCAP_LIB_DIR doesn't really matter if you only build PcapPlusPlus libs
-LIBPCAP_LIB_DIR=$LIBS_PATH/libpcap-android/armeabi-v7a/29
+LIBPCAP_LIB_DIR=$LIBS_PATH/libpcap-android/armeabi-v7a/30
 
 for TARGET in ${TARGETS}
 do

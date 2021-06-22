@@ -14,8 +14,8 @@ target_include_directories(pcapplusplus-interface PUBLIC ${CMAKE_SOURCE_DIR}/../
 
 target_link_libraries(
         pcapplusplus-interface
-        ${CMAKE_SOURCE_DIR}/../../../libs/pcapplusplus/${ANDROID_ABI}/29/libPcap++.a
-        ${CMAKE_SOURCE_DIR}/../../../libs/pcapplusplus/${ANDROID_ABI}/29/libPacket++.a
-        ${CMAKE_SOURCE_DIR}/../../../libs/pcapplusplus/${ANDROID_ABI}/29/libCommon++.a
-        ${CMAKE_SOURCE_DIR}/../../../libs/libpcap-android/${ANDROID_ABI}/29/libpcap.a
+        ${CMAKE_SOURCE_DIR}/../../../libs/pcapplusplus/${ANDROID_ABI}/30/libPcap++.a
+        ${CMAKE_SOURCE_DIR}/../../../libs/pcapplusplus/${ANDROID_ABI}/30/libPacket++.a
+        ${CMAKE_SOURCE_DIR}/../../../libs/pcapplusplus/${ANDROID_ABI}/30/libCommon++.a
+        ${CMAKE_SOURCE_DIR}/../../../libs/libpcap-android/${ANDROID_ABI}/30/libpcap.a
         ${log-lib})
