@@ -52,8 +52,8 @@ git clone --recurse-submodules https://github.com/seladb/ToyVpn-PcapPlusPlus
 
 ### Step 1a: Download PcapPlusPlus pre-compiled libraries for Android
 This is the easiest way to get started quickly:
-- You can download PcapPlusPlus pre-compiled libraries from the latest release page: <https://github.com/seladb/PcapPlusPlus/releases/download/v21.05/pcapplusplus-21.05-android.tar.gz>
-- Extract the archive file, rename the extracted folder from `pcapplusplus-21.05-android` to `pcapplusplus` and place that folder under `ToyVpn-PcapPlusPlus/app/libs`
+- You can download PcapPlusPlus pre-compiled libraries from the latest release page: <https://github.com/seladb/PcapPlusPlus/releases/download/v21.11/pcapplusplus-21.11-android.tar.gz>
+- Extract the archive file, rename the extracted folder from `pcapplusplus-21.11-android` to `pcapplusplus` and place that folder under `ToyVpn-PcapPlusPlus/app/libs`
 
 ### Step 1b: Build PcapPlusPlus for Android
 **If you already completed Step 1a, you can skip this step.**
