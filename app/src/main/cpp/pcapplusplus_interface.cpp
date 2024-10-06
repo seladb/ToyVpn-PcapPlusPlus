@@ -2,11 +2,11 @@
 #include <sstream>
 #include <jni.h>
 #include <android/log.h>
-#include "../../../libs/pcapplusplus/include/PacketUtils.h"
-#include "../../../libs/pcapplusplus/include/Packet.h"
-#include "../../../libs/pcapplusplus/include/DnsLayer.h"
-#include "../../../libs/pcapplusplus/include/SSLLayer.h"
-#include "../../../libs/pcapplusplus/include/PcapFileDevice.h"
+#include <pcapplusplus/PacketUtils.h>
+#include <pcapplusplus/Packet.h>
+#include <pcapplusplus/DnsLayer.h>
+#include <pcapplusplus/SSLLayer.h>
+#include <pcapplusplus/PcapFileDevice.h>
 
 const char* TAG = "PcapPlusPlusNativeInterface";
 
