@@ -16,19 +16,20 @@ env:
 jobs:
   android:
     strategy:
+      fail-fast: false
       matrix:
         include:
-          - run-on-os: ubuntu-20.04
+          - run-on-os: ubuntu-24.04
             target: armeabi-v7a
             api-version: 30
-          - run-on-os: ubuntu-20.04
+          - run-on-os: ubuntu-24.04
             target: x86
             api-version: 30
-          - run-on-os: macos-12
+          - run-on-os: macos-14
             target: arm64-v8a
             cmake_configure: "-DCMAKE_OSX_ARCHITECTURES=arm64"
             api-version: 30
-          - run-on-os: macos-12
+          - run-on-os: macos-14
             target: x86_64
             cmake_configure: "-DCMAKE_OSX_ARCHITECTURES=x86_64"
             api-version: 30
@@ -58,6 +59,7 @@ jobs:
 
       - name: Build ToyVpn-PcapPlusPlus
         run: |
+          export PcapPlusPlus_ROOT="${LIBPCAPPP_PATH}"
           NDK_VERSION=$(echo "$ANDROID_NDK" | awk -F'/' '{print $NF}')
           sed -i.bak "s|abiFilters.*$|abiFilters '${{ matrix.target }}'|g" app/build.gradle
           if [[ "${{ matrix.run-on-os }}" == "macos"* ]]; then
