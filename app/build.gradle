@@ -8,6 +8,7 @@ android {
     defaultConfig {
         applicationId "com.example.android.toyvpn"
         minSdkVersion 29
+        //noinspection ExpiredTargetSdkVersion
         targetSdkVersion 30
         ndk {
             abiFilters 'armeabi-v7a', 'x86', 'x86_64', 'arm64-v8a'
@@ -28,6 +29,7 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
         }
     }
+    namespace 'com.example.android.toyvpn'
 }
 repositories {
     mavenCentral()
