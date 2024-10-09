@@ -1,0 +1,73 @@
+name: Build and test
+on:
+  push:
+    branches: ["master"]
+  pull_request:
+    branches: ["master"]
+  schedule:
+    - cron: '0 0 * * 0' # Run every Sunday at midnight
+
+env:
+  LIBPCAP_PATH: ./app/libs/libpcap-android
+  LIBPCAPPP_PATH: ./app/libs/PcapPlusPlus
+  TEMP_PCAPPP_DIR: ./tmp/PcapPlusPlus
+  TEMP_PCAPPP_BUILD_DIR: ./tmp/PcapPlusPlus/Build
+
+jobs:
+  android:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - run-on-os: ubuntu-24.04
+            target: armeabi-v7a
+            api-version: 30
+          - run-on-os: ubuntu-24.04
+            target: x86
+            api-version: 30
+          - run-on-os: macos-14
+            target: arm64-v8a
+            cmake_configure: "-DCMAKE_OSX_ARCHITECTURES=arm64"
+            api-version: 30
+          - run-on-os: macos-14
+            target: x86_64
+            cmake_configure: "-DCMAKE_OSX_ARCHITECTURES=x86_64"
+            api-version: 30
+
+    runs-on: ${{ matrix.run-on-os }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938 # v4.2.0
+        with: 
+          submodules: true
+
+      - name: Checkout PcapPlusPlus
+        uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938 # master
+        with:
+          repository: seladb/PcapPlusPlus
+          path: ./tmp/PcapPlusPlus
+
+      - name: Build and Install PcapPlusPlus
+        run: |
+          PCAPPLUSPLUS_LIBS_PATH="${LIBPCAPPP_PATH}/${{ matrix.target }}/${{ matrix.api-version }}"
+          cmake -DPCAPPP_BUILD_COVERAGE=OFF -DPCAPPP_BUILD_EXAMPLES=OFF -DDPCAPPP_BUILD_TESTS=OFF -DCMAKE_TOOLCHAIN_FILE="${ANDROID_NDK}/build/cmake/android.toolchain.cmake" -DANDROID_PLATFORM="${{ matrix.api-version}}" -DANDROID_ABI="${{ matrix.target }}" -DPCAP_INCLUDE_DIR="${LIBPCAP_PATH}/include/" -DPCAP_LIBRARY="${LIBPCAP_PATH}/${{ matrix.target }}/${{ matrix.api-version}}/libpcap.a" -S "$TEMP_PCAPPP_DIR" -B "$TEMP_PCAPPP_BUILD_DIR"
+          cmake --build "$TEMP_PCAPPP_BUILD_DIR" -j
+          cmake --install "$TEMP_PCAPPP_BUILD_DIR" --prefix "${LIBPCAPPP_PATH}"
+          mkdir -p "${PCAPPLUSPLUS_LIBS_PATH}"
+          mv ${LIBPCAPPP_PATH}/lib/*.a "${PCAPPLUSPLUS_LIBS_PATH}/"
+
+      - name: Build ToyVpn-PcapPlusPlus
+        run: |
+          export PcapPlusPlus_ROOT="${LIBPCAPPP_PATH}"
+          NDK_VERSION=$(echo "$ANDROID_NDK" | awk -F'/' '{print $NF}')
+          sed -i.bak "s|abiFilters.*$|abiFilters '${{ matrix.target }}'|g" app/build.gradle
+          if [[ "${{ matrix.run-on-os }}" == "macos"* ]]; then
+              sed -i.bak "/defaultConfig {/a\\
+                  ndkVersion \"$NDK_VERSION\"
+              " app/build.gradle
+          else
+              sed -i "/defaultConfig {/a\\        ndkVersion \"$NDK_VERSION\"" app/build.gradle
+          fi
+          chmod +x gradlew
+          ./gradlew assembleDebug

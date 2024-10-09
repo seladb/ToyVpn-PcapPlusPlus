@@ -1,21 +1,20 @@
-cmake_minimum_required(VERSION 3.10.2)
+cmake_minimum_required(VERSION 3.27)
 
 project("pcapplusplus-interface")
+
+# Android log library
+find_library(log-lib REQUIRED log)
+
+# Find PcapPlusPlus library
+find_package(PcapPlusPlus REQUIRED)
 
 add_library(
         pcapplusplus-interface
         SHARED
         pcapplusplus_interface.cpp)
 
-find_library(log-lib log)
-
-target_include_directories(pcapplusplus-interface PUBLIC ${CMAKE_SOURCE_DIR}/../../../libs/libpcap-android/include)
-target_include_directories(pcapplusplus-interface PUBLIC ${CMAKE_SOURCE_DIR}/../../../libs/pcapplusplus/include)
-
 target_link_libraries(
         pcapplusplus-interface
-        ${CMAKE_SOURCE_DIR}/../../../libs/pcapplusplus/${ANDROID_ABI}/30/libPcap++.a
-        ${CMAKE_SOURCE_DIR}/../../../libs/pcapplusplus/${ANDROID_ABI}/30/libPacket++.a
-        ${CMAKE_SOURCE_DIR}/../../../libs/pcapplusplus/${ANDROID_ABI}/30/libCommon++.a
-        ${CMAKE_SOURCE_DIR}/../../../libs/libpcap-android/${ANDROID_ABI}/30/libpcap.a
-        ${log-lib})
+        PRIVATE
+        PcapPlusPlus::Pcap++
+        log-lib)
