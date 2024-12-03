@@ -28,6 +28,10 @@ android {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
         }
+        debug {
+            // Add more verbose logging
+            testCoverageEnabled true
+        }
     }
 }
 repositories {
@@ -35,4 +39,10 @@ repositories {
 }
 dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+}
+gradle.buildFinished { buildResult ->
+    if (buildResult.failure != null) {
+        println "Build failed with exception: ${buildResult.failure}"
+        buildResult.failure.printStackTrace()
+    }
 }
