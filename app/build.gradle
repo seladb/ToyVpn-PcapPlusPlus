@@ -20,7 +20,6 @@ android {
     externalNativeBuild {
         cmake {
             version "3.31.0"
-            // path file('src/main/cpp/CMakeLists.txt')
         }
     }
     buildTypes {
@@ -39,10 +38,4 @@ repositories {
 }
 dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
-}
-gradle.buildFinished { buildResult ->
-    if (buildResult.failure != null) {
-        println "Build failed with exception: ${buildResult.failure}"
-        buildResult.failure.printStackTrace()
-    }
 }
