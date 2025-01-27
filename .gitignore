@@ -7,6 +7,9 @@
 /.idea/workspace.xml
 /.idea/navEditor.xml
 /.idea/assetWizardSettings.xml
+/.idea/androidTestResultsUserPreferences.xml
+/.idea/deploymentTargetSelector.xml
+/.idea/kotlinc.xml
 .DS_Store
 /build
 /captures
@@ -14,3 +17,4 @@
 .cxx
 local.properties
 /server/linux/ToyVpnServer
+/app/libs/*
