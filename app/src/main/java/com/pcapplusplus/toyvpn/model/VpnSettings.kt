@@ -39,6 +39,7 @@ data class VpnSettings(
                         is NumberFormatException, is IndexOutOfBoundsException -> {
                             throw IllegalArgumentException("Bad parameter: $parameter")
                         }
+
                         else -> throw ex
                     }
                 }

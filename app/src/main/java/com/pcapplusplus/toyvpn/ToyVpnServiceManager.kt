@@ -7,7 +7,6 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.net.VpnService
 import android.os.Build
-import android.os.Bundle
 import android.util.Log
 import androidx.activity.result.ActivityResultLauncher
 import com.pcapplusplus.toyvpn.model.BroadcastActions
@@ -15,7 +14,6 @@ import com.pcapplusplus.toyvpn.model.PacketData
 import com.pcapplusplus.toyvpn.model.VpnConnectionState
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import java.io.Serializable
 
 interface PacketDataHandler {
     fun onPacketDataArrives(packetDataList: ArrayList<PacketData>)
@@ -23,7 +21,7 @@ interface PacketDataHandler {
 
 interface VpnServiceProxy {
     fun startVpnService(intent: Intent)
-    fun prepare(context: Context) : Intent?
+    fun prepare(context: Context): Intent?
 }
 
 open class DefaultVpnServiceProxy(private val context: Context) : VpnServiceProxy {
@@ -31,7 +29,7 @@ open class DefaultVpnServiceProxy(private val context: Context) : VpnServiceProx
         context.startService(intent)
     }
 
-    override fun prepare(context: Context) : Intent? {
+    override fun prepare(context: Context): Intent? {
         return VpnService.prepare(context)
     }
 }

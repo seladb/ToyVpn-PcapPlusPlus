@@ -140,7 +140,7 @@ class ToyVpnService : VpnService() {
         val outputStream = FileOutputStream(vpnInterfaceDescriptor)
         val packet = ByteBuffer.allocate(MAX_PACKET_SIZE)
 
-        var lastSendTime = System.currentTimeMillis();
+        var lastSendTime = System.currentTimeMillis()
 
         while (vpnInterface != null && vpnConnected.get()) {
             var idle = true
@@ -226,7 +226,7 @@ class ToyVpnService : VpnService() {
         tunnel.configureBlocking(false)
         Log.w(LOG_TAG, "Channel connected")
 
-        val packet = ByteBuffer.allocate(1024);
+        val packet = ByteBuffer.allocate(1024)
         packet.put(0).put(secret.encodeToByteArray()).flip()
 
         tunnel.write(packet)
