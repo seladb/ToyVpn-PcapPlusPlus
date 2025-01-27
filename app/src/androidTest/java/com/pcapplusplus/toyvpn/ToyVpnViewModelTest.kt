@@ -55,8 +55,8 @@ class ToyVpnViewModelTest {
         assertEquals(0, viewModel.tlsPacketCount.value)
         assertEquals(0, viewModel.tcpConnectionCount.value)
         assertEquals(0, viewModel.udpConnectionCount.value)
-        assertNull(viewModel.topDnsDomains.value)
-        assertNull(viewModel.topTlsServerNames.value)
+        assertEquals(0, viewModel.topDnsDomains.value?.size)
+        assertEquals(0, viewModel.topTlsServerNames.value?.size)
 
         assertEquals(VpnConnectionState.DISCONNECTED, viewModel.vpnConnectionState.value)
         assertNull(viewModel.vpnConnectionError.value)

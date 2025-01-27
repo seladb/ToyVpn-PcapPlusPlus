@@ -7,7 +7,7 @@ import io.mockk.mockk
 
 class DomainTrackerTest {
     @Test
-    fun `test recordDomain adds a domain`() {
+    fun `test adds a domain`() {
         val tracker = DomainTracker(1000)
         tracker.recordDomain("example.com")
 
@@ -105,5 +105,17 @@ class DomainTrackerTest {
 
         topDomains = tracker.getTopDomains(10)
         assertEquals(0, topDomains.size)
+    }
+
+    @Test
+    fun `test clear`() {
+        val tracker = DomainTracker(1000)
+        tracker.recordDomain("www.example.com")
+        tracker.recordDomain("test.com")
+
+        assertEquals(2, tracker.getTopDomains(10).size)
+
+        tracker.clear()
+        assertEquals(0, tracker.getTopDomains(10).size)
     }
 }

@@ -83,6 +83,10 @@ class ToyVpnViewModel(private val vpnServiceManager: ToyVpnServiceManager) : Vie
         _udpConnectionCount.postValue(0)
         tcpConnections.clear()
         udpConnections.clear()
+        dnsDomainTracker.clear()
+        _topDnsDomains.postValue(listOf())
+        tlsServerNameTracker.clear()
+        _topTlsServerNames.postValue(listOf())
 
         viewModelScope.launch {
             Log.w("ToyVpnViewModel", "Running vpnServiceManager.startVpnService !!!!!!!")

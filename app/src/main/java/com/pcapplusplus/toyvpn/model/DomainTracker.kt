@@ -26,6 +26,10 @@ class DomainTracker(
             .map { DomainData(domain = it.key, count = it.value.size) }
     }
 
+    fun clear() {
+        domainData.clear()
+    }
+
     private fun cleanUpOldDomains(currentTime: Long) {
         for (entry in domainData) {
             entry.value.removeAll { it < currentTime - timeWindowMillis }
