@@ -1,21 +1,38 @@
-cmake_minimum_required(VERSION 3.10.2...3.31.1)
+cmake_minimum_required(VERSION 3.4.1)
 
-project("pcapplusplus-interface")
+project("pcapplusplus_interface")
 
-add_library(
-        pcapplusplus-interface
-        SHARED
-        pcapplusplus_interface.cpp)
+add_library(pcapplusplus_interface SHARED PacketAnalyzer.cpp)
 
-find_library(log-lib log)
+include_directories(
+    pcapplusplus_interface
+    PUBLIC
+    ${CMAKE_SOURCE_DIR}/../../../libs/libpcap-android/include
+)
+include_directories(
+    pcapplusplus_interface
+    PUBLIC
+    ${CMAKE_SOURCE_DIR}/../../../libs/pcapplusplus/include
+)
 
-target_include_directories(pcapplusplus-interface PUBLIC ${CMAKE_SOURCE_DIR}/../../../libs/libpcap-android/include)
-target_include_directories(pcapplusplus-interface PUBLIC ${CMAKE_SOURCE_DIR}/../../../libs/pcapplusplus/include)
+set(API_VERSION ${ANDROID_PLATFORM})
+string(REPLACE "android-" "" API_VERSION ${API_VERSION})
 
+#target_link_libraries(
+#  pcapplusplus_interface
+#  ${CMAKE_SOURCE_DIR}/../../../libs/pcapplusplus/${ANDROID_ABI}/${API_VERSION}/libPcap++.a
+#  ${CMAKE_SOURCE_DIR}/../../../libs/pcapplusplus/${ANDROID_ABI}/${API_VERSION}/libPacket++.a
+#  ${CMAKE_SOURCE_DIR}/../../../libs/pcapplusplus/${ANDROID_ABI}/${API_VERSION}/libCommon++.a
+#  ${CMAKE_SOURCE_DIR}/../../../libs/libpcap-android/${ANDROID_ABI}/${API_VERSION}/libpcap.a
+#  log
+#  android
+#)
 target_link_libraries(
-        pcapplusplus-interface
-        ${CMAKE_SOURCE_DIR}/../../../libs/pcapplusplus/${ANDROID_ABI}/30/libPcap++.a
-        ${CMAKE_SOURCE_DIR}/../../../libs/pcapplusplus/${ANDROID_ABI}/30/libPacket++.a
-        ${CMAKE_SOURCE_DIR}/../../../libs/pcapplusplus/${ANDROID_ABI}/30/libCommon++.a
-        ${CMAKE_SOURCE_DIR}/../../../libs/libpcap-android/${ANDROID_ABI}/30/libpcap.a
-        ${log-lib})
+    pcapplusplus_interface
+    ${CMAKE_SOURCE_DIR}/../../../libs/pcapplusplus/${ANDROID_ABI}/30/libPcap++.a
+    ${CMAKE_SOURCE_DIR}/../../../libs/pcapplusplus/${ANDROID_ABI}/30/libPacket++.a
+    ${CMAKE_SOURCE_DIR}/../../../libs/pcapplusplus/${ANDROID_ABI}/30/libCommon++.a
+    ${CMAKE_SOURCE_DIR}/../../../libs/libpcap-android/${ANDROID_ABI}/30/libpcap.a
+    log
+    android
+)
