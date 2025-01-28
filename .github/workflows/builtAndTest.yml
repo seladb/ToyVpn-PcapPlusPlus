@@ -39,7 +39,8 @@ jobs:
       - name: Download PcapPlusPlus
         uses: robinraju/release-downloader@v1
         with:
-          releaseId: "v24.09"
+          repository: "seladb/PcapPlusPlus"
+          tag: "v24.09"
           fileName: "pcapplusplus-24.09-android.tar.gz"
           tarBall: true
           extract: true
