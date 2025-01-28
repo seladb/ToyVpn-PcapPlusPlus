@@ -5,6 +5,9 @@ on:
 #    branches: ["master"]
   pull_request:
 
+env:
+  BUILD_DIR: build
+
 jobs:
   build-and-test:
     strategy:
