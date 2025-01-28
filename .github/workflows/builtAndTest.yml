@@ -42,9 +42,12 @@ jobs:
           repository: "seladb/PcapPlusPlus"
           tag: "v24.09"
           fileName: "pcapplusplus-24.09-android.tar.gz"
+          out-file-path: "app/libs"
           tarBall: true
           extract: true
 
+      - name: Rename PcapPlusPlus directory
+        run: mv pcapplusplus-24.09-android pcapplusplus
 #      - name: Checkout lipbcap for Android
 #        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # main
 #        with:
@@ -82,7 +85,7 @@ jobs:
       - name: Set up JDK
         uses: actions/setup-java@v4
         with:
-          java-version: "11"
+          java-version: "17"
           distribution: "zulu"
           cache: "gradle"
 
