@@ -14,7 +14,7 @@ jobs:
       matrix:
         include:
           - run-on-os: ubuntu-latest
-            target: armeabi-v7a
+            target: arm64-v8a
             api-version: 35
 #          - run-on-os: ubuntu-20.04
 #            target: x86
