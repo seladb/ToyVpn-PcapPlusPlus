@@ -45,6 +45,7 @@ class ToyVpnService : VpnService() {
         const val KEEPALIVE_INTERVAL_MSEC: Long = 15
         const val MAX_HANDSHAKE_ATTEMPTS = 50
         const val MAX_PACKET_SIZE = 32767
+        const val MAX_SECRET_LENGTH = 1024
     }
 
     private val broadcastReceiver = object : BroadcastReceiver() {
@@ -212,12 +213,17 @@ class ToyVpnService : VpnService() {
     private fun handshake(
         serverAddress: String,
         serverPort: Int,
-        secret: String
+        secret: String,
+        protectTunnel: Boolean = true
     ): Pair<DatagramChannel, VpnSettings> {
         Log.w(LOG_TAG, "Starting handshake")
 
+        if (secret.length > MAX_SECRET_LENGTH) {
+            throw IllegalArgumentException("Secret is too long, max allowed length is $MAX_SECRET_LENGTH")
+        }
+
         val tunnel = DatagramChannel.open()
-        if (!protect(tunnel.socket())) {
+        if (protectTunnel && !protect(tunnel.socket())) {
             throw IllegalStateException("Cannot protect the tunnel")
         }
         Log.w(LOG_TAG, "Opened channel")
@@ -226,10 +232,13 @@ class ToyVpnService : VpnService() {
         tunnel.configureBlocking(false)
         Log.w(LOG_TAG, "Channel connected")
 
-        val packet = ByteBuffer.allocate(1024)
-        packet.put(0).put(secret.encodeToByteArray()).flip()
+        val packet = ByteBuffer.allocate(MAX_SECRET_LENGTH + 1)
+        val secretAsByteArray = byteArrayOf(0) + secret.encodeToByteArray()
+        packet.put(secretAsByteArray).flip()
 
-        tunnel.write(packet)
+        if (tunnel.write(packet) != secretAsByteArray.size) {
+            throw IllegalStateException("Failed to send control packet to tunnel")
+        }
         Log.w(LOG_TAG, "Sent secret")
 
         packet.clear()
@@ -242,9 +251,14 @@ class ToyVpnService : VpnService() {
             // byte is 0 as expected.
             val length = tunnel.read(packet)
             if (length > 0 && packet[0].toInt() == 0) {
-                val response = String(packet.array(), 1, length - 1, US_ASCII).trim { it <= ' ' }
-                Log.w(LOG_TAG, "Got handshake response: $response")
-                return Pair(tunnel, VpnSettings.fromParamString(response))
+                try {
+                    val response =
+                        String(packet.array(), 1, length - 1, US_ASCII).trim { it <= ' ' }
+                    Log.w(LOG_TAG, "Got handshake response: $response")
+                    return Pair(tunnel, VpnSettings.fromParamString(response))
+                } catch (ex: Exception) {
+                    throw IllegalStateException("Cannot parse the handshake response from the server")
+                }
             }
         }
 
