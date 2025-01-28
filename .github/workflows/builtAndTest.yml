@@ -92,11 +92,8 @@ jobs:
       - name: Change wrapper permissions
         run: chmod +x ./gradlew
 
-      - name: Build gradle project
+      - name: Build gradle project and run tests
         run: ./gradlew build
-
-      - name: Run Unit Tests with Gradle
-        run: ./gradlew test
 
       - name: Enable KVM
         run: |
@@ -109,7 +106,7 @@ jobs:
         with:
           api-level: 35
           arch: ${{ matrix.target }}
-          script: ./gradlew connectedCheck
+          script: ./gradlew -is connectedCheck
 
 #          ./gradlew assembleDebug
 #      - name: Build ToyVpn-PcapPlusPlus
