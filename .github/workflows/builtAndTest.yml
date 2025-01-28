@@ -98,6 +98,10 @@ jobs:
       - name: Run Unit Tests with Gradle
         run: ./gradlew test
 
+      - name: Run Unit Tests with Gradle
+        run: ./gradlew assembleDebug
+
+#          ./gradlew assembleDebug
 #      - name: Build ToyVpn-PcapPlusPlus
 #        working-directory: ./ToyVpn-PcapPlusPlus
 #        run: |
