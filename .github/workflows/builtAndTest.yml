@@ -47,7 +47,7 @@ jobs:
           extract: true
 
       - name: Rename PcapPlusPlus directory
-        run: mv pcapplusplus-24.09-android pcapplusplus
+        run: mv $GITHUB_WORKSPACE/app/libs/pcapplusplus-24.09-android $GITHUB_WORKSPACE/app/libs/pcapplusplus
 #      - name: Checkout lipbcap for Android
 #        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # main
 #        with:
