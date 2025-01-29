@@ -45,6 +45,9 @@ jobs:
       - name: Change wrapper permissions
         run: chmod +x ./gradlew
 
+      - name: Run lint
+        run: ./gradlew lint
+
       - name: Build gradle project and run tests
         run: ./gradlew build
 

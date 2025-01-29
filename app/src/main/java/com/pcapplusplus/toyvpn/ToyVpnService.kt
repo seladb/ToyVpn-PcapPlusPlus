@@ -48,6 +48,7 @@ class ToyVpnService : VpnService() {
         const val MAX_SECRET_LENGTH = 1024
     }
 
+    @SuppressLint("SyntheticAccessor")
     private val broadcastReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
             if (intent?.action == BroadcastActions.VPN_SERVICE_STOP) {
