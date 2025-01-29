@@ -17,25 +17,25 @@ jobs:
 #          - run-on-os: ubuntu-latest
 #            target: x86_64
 #            api-version: 35
-
+#
 #          - run-on-os: ubuntu-latest
-#            target: x86
-#            api-version: 35
+#            target: x86_64
+#            api-version: 33
+#
+#          - run-on-os: ubuntu-latest
+#            target: x86_64
+#            api-version: 30
 
-          - run-on-os: macos-15
+          - run-on-os: macos-latest
             target: arm64-v8a
             api-version: 35
 
-#          - run-on-os: ubuntu-20.04
-#            target: x86
-#            api-version: 30
-#          - run-on-os: macos-15
+#          - run-on-os: macos-latest
 #            target: arm64-v8a
-#            cmake_configure: "-DCMAKE_OSX_ARCHITECTURES=arm64"
-#            api-version: 30
-#          - run-on-os: macos-15
-#            target: x86_64
-#            cmake_configure: "-DCMAKE_OSX_ARCHITECTURES=x86_64"
+#            api-version: 33
+#
+#          - run-on-os: macos-latest
+#            target: arm64-v8a
 #            api-version: 30
 
     runs-on: ${{ matrix.run-on-os }}
@@ -106,11 +106,11 @@ jobs:
       - name: Build gradle project and run tests
         run: ./gradlew build
 
-      - name: Enable KVM
-        run: |
-          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
-          sudo udevadm control --reload-rules
-          sudo udevadm trigger --name-match=kvm
+#      - name: Enable KVM
+#        run: |
+#          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+#          sudo udevadm control --reload-rules
+#          sudo udevadm trigger --name-match=kvm
 
       - name: Run instrumentation tests
         uses: reactivecircus/android-emulator-runner@v2
