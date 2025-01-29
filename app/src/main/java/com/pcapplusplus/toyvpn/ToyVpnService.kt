@@ -116,9 +116,9 @@ class ToyVpnService : VpnService() {
         val builder = Builder()
 
         builder.setSession("ToyVPN")
-            .addAddress(vpnSettings.clientAddress, vpnSettings.clientAddressPrefixLength)
-            .setMtu(vpnSettings.mtu)
-            .addRoute(vpnSettings.routeAddress, vpnSettings.routePrefixLength)
+        builder.addAddress(vpnSettings.clientAddress, vpnSettings.clientAddressPrefixLength)
+        builder.setMtu(vpnSettings.mtu)
+        builder.addRoute(vpnSettings.routeAddress, vpnSettings.routePrefixLength)
 
         if (vpnSettings.dnsServer != null) {
             builder.addDnsServer(vpnSettings.dnsServer)
