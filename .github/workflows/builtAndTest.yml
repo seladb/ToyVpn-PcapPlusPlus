@@ -41,14 +41,14 @@ jobs:
         uses: robinraju/release-downloader@v1
         with:
           repository: "seladb/PcapPlusPlus"
-          tag: "v$PCAPPLUSPLUS_LATEST_VERSION"
-          fileName: "pcapplusplus-$PCAPPLUSPLUS_LATEST_VERSION-android.tar.gz"
+          tag: "v${PCAPPLUSPLUS_LATEST_VERSION}"
+          fileName: "pcapplusplus-${PCAPPLUSPLUS_LATEST_VERSION}-android.tar.gz"
           out-file-path: "app/libs"
           tarBall: true
           extract: true
 
       - name: Rename PcapPlusPlus directory
-        run: mv $GITHUB_WORKSPACE/app/libs/pcapplusplus-$PCAPPLUSPLUS_LATEST_VERSION-android $GITHUB_WORKSPACE/app/libs/pcapplusplus
+        run: mv $GITHUB_WORKSPACE/app/libs/pcapplusplus-${PCAPPLUSPLUS_LATEST_VERSION}-android $GITHUB_WORKSPACE/app/libs/pcapplusplus
 
 #      - name: Checkout lipbcap for Android
 #        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # main
