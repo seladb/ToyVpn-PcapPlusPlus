@@ -109,7 +109,7 @@ class ToyVpnServiceManagerTest {
             assertEquals(VpnConnectionState.DISCONNECTING, serviceManager.vpnServiceState.value)
             assertNull(serviceManager.vpnConnectionError.value)
 
-            waitFor({ receiver.gotStopVpnIntent })
+            waitFor { receiver.gotStopVpnIntent }
         } finally {
             context.unregisterReceiver(receiver)
 
@@ -119,16 +119,16 @@ class ToyVpnServiceManagerTest {
     @Test
     fun testReceiveVpnStartedAndStoppedEvent() = runTest {
         context.sendBroadcast(Intent(BroadcastActions.VPN_SERVICE_STARTED))
-        waitFor({ serviceManager.vpnServiceState.value == VpnConnectionState.CONNECTED })
+        waitFor { serviceManager.vpnServiceState.value == VpnConnectionState.CONNECTED }
 
         context.sendBroadcast(Intent(BroadcastActions.VPN_SERVICE_STOPPED))
-        waitFor({ serviceManager.vpnServiceState.value == VpnConnectionState.DISCONNECTED })
+        waitFor { serviceManager.vpnServiceState.value == VpnConnectionState.DISCONNECTED }
     }
 
     @Test
     fun testReceiveVpnErrorEvent() = runTest {
         context.sendBroadcast(Intent(BroadcastActions.VPN_SERVICE_STARTED))
-        waitFor({ serviceManager.vpnServiceState.value == VpnConnectionState.CONNECTED })
+        waitFor { serviceManager.vpnServiceState.value == VpnConnectionState.CONNECTED }
         assertNull(serviceManager.vpnConnectionError.value)
 
         val errorMessage = "Some error"
@@ -138,8 +138,8 @@ class ToyVpnServiceManagerTest {
 
         context.sendBroadcast(errorIntent)
 
-        waitFor({ serviceManager.vpnServiceState.value == VpnConnectionState.DISCONNECTED })
-        waitFor({ serviceManager.vpnConnectionError.value == errorMessage })
+        waitFor { serviceManager.vpnServiceState.value == VpnConnectionState.DISCONNECTED }
+        waitFor { serviceManager.vpnConnectionError.value == errorMessage }
     }
 
     @Test
@@ -154,6 +154,6 @@ class ToyVpnServiceManagerTest {
 
         context.sendBroadcast(packetArrivedIntent)
 
-        waitFor({ packetDataHandler.packetDatasArrived == packetDatas })
+        waitFor { packetDataHandler.packetDatasArrived == packetDatas }
     }
 }
