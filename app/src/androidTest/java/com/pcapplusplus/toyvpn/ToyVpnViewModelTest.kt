@@ -201,7 +201,7 @@ class ToyVpnViewModelTest {
         assertEquals(VpnConnectionState.DISCONNECTED, viewModel.vpnConnectionState.value)
 
         vpnConnectionState.value = VpnConnectionState.CONNECTED
-        waitFor({ viewModel.vpnConnectionState.value == VpnConnectionState.CONNECTED })
+        waitFor { viewModel.vpnConnectionState.value == VpnConnectionState.CONNECTED }
     }
 
     @Test
@@ -209,6 +209,6 @@ class ToyVpnViewModelTest {
         assertNull(viewModel.vpnConnectionError.value)
 
         vpnConnectionError.value = "Some error"
-        waitFor({ viewModel.vpnConnectionError.value == "Some error" })
+        waitFor { viewModel.vpnConnectionError.value == "Some error" }
     }
 }
