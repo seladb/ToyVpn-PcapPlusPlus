@@ -2,7 +2,7 @@ package com.pcapplusplus.toyvpn
 
 import kotlinx.coroutines.delay
 
-suspend fun waitFor(condition: () -> Boolean, timeoutMillis: Long = 5000L) {
+suspend fun waitFor(condition: () -> Boolean, timeoutMillis: Long = 10000L) {
     var elapsedTime = 0L
     while (!condition() && elapsedTime < timeoutMillis) {
         delay(10)
