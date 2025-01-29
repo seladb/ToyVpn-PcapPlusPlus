@@ -41,8 +41,8 @@ jobs:
         uses: robinraju/release-downloader@v1
         with:
           repository: "seladb/PcapPlusPlus"
-          tag: "v${PCAPPLUSPLUS_LATEST_VERSION}"
-          fileName: "pcapplusplus-${PCAPPLUSPLUS_LATEST_VERSION}-android.tar.gz"
+          tag: "v${{env.PCAPPLUSPLUS_LATEST_VERSION}}"
+          fileName: "pcapplusplus-${{env.PCAPPLUSPLUS_LATEST_VERSION}}-android.tar.gz"
           out-file-path: "app/libs"
           tarBall: true
           extract: true
