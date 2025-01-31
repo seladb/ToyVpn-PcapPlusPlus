@@ -20,7 +20,6 @@ import java.nio.channels.DatagramChannel
 class ToyVpnServiceEstablishVpnConnectionTest {
     private val vpnService = spyk(ToyVpnService(), recordPrivateCalls = true)
     private val mockDatagramChannel = mockk<DatagramChannel>()
-    private lateinit var vpnSettings: VpnSettings
     private val establishVpnConnectionMethod = vpnService::class.java.getDeclaredMethod(
         "establishVpnConnection",
         String::class.java,

@@ -18,7 +18,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
-import java.io.FileDescriptor
 import java.io.FileInputStream
 import java.io.FileOutputStream
 import java.io.IOException
@@ -41,6 +40,7 @@ class ToyVpnService : VpnService() {
         const val LOG_TAG = "ToyVpnService"
         const val PACKET_DATA_BATCH_SIZE = 20
         const val PACKET_DATA_BATCH_INTERVAL_MSEC = 1000
+        const val SEND_CONTROL_PACKET_COUNT = 3
         const val IDLE_INTERVAL_MSEC: Long = 100
         const val KEEPALIVE_INTERVAL_MSEC: Long = 15
         const val MAX_HANDSHAKE_ATTEMPTS = 50
@@ -93,7 +93,9 @@ class ToyVpnService : VpnService() {
                 val vpnTunnel = establishVpnResult.await() ?: return@launch
 
                 try {
-                    forwardTraffic(vpnInterface?.fileDescriptor, vpnTunnel)
+                    val inputSteam = FileInputStream(vpnInterface?.fileDescriptor)
+                    val outputStream = FileOutputStream(vpnInterface?.fileDescriptor)
+                    forwardTraffic(inputSteam, outputStream, vpnTunnel)
                 } catch (e: Exception) {
                     stopSelfOnError("Error while forwarding traffic to the VPN server", e)
                 }
@@ -137,9 +139,11 @@ class ToyVpnService : VpnService() {
         return handshakeResponse.first
     }
 
-    private fun forwardTraffic(vpnInterfaceDescriptor: FileDescriptor?, tunnel: DatagramChannel) {
-        val inputStream = FileInputStream(vpnInterfaceDescriptor)
-        val outputStream = FileOutputStream(vpnInterfaceDescriptor)
+    private fun forwardTraffic(
+        inputStream: FileInputStream,
+        outputStream: FileOutputStream,
+        tunnel: DatagramChannel
+    ) {
         val packet = ByteBuffer.allocate(MAX_PACKET_SIZE)
 
         var lastSendTime = System.currentTimeMillis()
@@ -183,7 +187,7 @@ class ToyVpnService : VpnService() {
                     // We are receiving for a long time but not sending.
                     // Send empty control messages.
                     packet.put(0.toByte()).limit(1)
-                    for (i in 0..2) {
+                    for (i in 1..SEND_CONTROL_PACKET_COUNT) {
                         packet.position(0)
                         tunnel.write(packet)
                     }
@@ -198,6 +202,9 @@ class ToyVpnService : VpnService() {
         val packetData = packetProcessor.processPacket(rawPacketData = rawPacketData)
         if (packetData != null) {
             val curTimestamp = System.currentTimeMillis()
+            if (lastPacketDataSentTimestamp == 0L) {
+                lastPacketDataSentTimestamp = curTimestamp
+            }
             packetDataList.add(packetData)
             if (packetDataList.size >= PACKET_DATA_BATCH_SIZE || curTimestamp - lastPacketDataSentTimestamp > PACKET_DATA_BATCH_INTERVAL_MSEC) {
                 val intent = Intent(BroadcastActions.VPN_SERVICE_PACKET_ARRIVED).apply {
