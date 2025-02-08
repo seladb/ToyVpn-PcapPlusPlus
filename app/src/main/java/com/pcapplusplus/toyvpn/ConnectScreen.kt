@@ -47,7 +47,10 @@ val defaultSpacing = 16.dp
 val defaultPadding = 16.dp
 
 @Composable
-fun ConnectScreen(navController: NavController, viewModel: ToyVpnViewModel) {
+fun ConnectScreen(
+    navController: NavController,
+    viewModel: ToyVpnViewModel,
+) {
     var serverAddress by remember { mutableStateOf(TextFieldValue("172.27.1.113")) }
     var serverPort by remember { mutableStateOf(TextFieldValue("5687")) }
     var secret by remember { mutableStateOf(TextFieldValue("test")) }
@@ -59,9 +62,10 @@ fun ConnectScreen(navController: NavController, viewModel: ToyVpnViewModel) {
     val vpnConnectionError by viewModel.vpnConnectionError.observeAsState(null)
 
     fun validateIpv4Address(address: String): Boolean {
-        val ipv4Pattern = Pattern.compile(
-            "^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$"
-        )
+        val ipv4Pattern =
+            Pattern.compile(
+                "^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$",
+            )
         return ipv4Pattern.matcher(address).matches()
     }
 
@@ -83,25 +87,27 @@ fun ConnectScreen(navController: NavController, viewModel: ToyVpnViewModel) {
             viewModel.connectVpn(
                 serverAddress.text,
                 serverPort.text.toIntOrNull() ?: 0,
-                secret.text
+                secret.text,
             )
         } else {
             // If there's an issue with address or port
-            serverAddressError = if (serverAddress.text.isEmpty()) {
-                "Server address cannot be empty"
-            } else if (!validateIpv4Address(serverAddress.text)) {
-                "Invalid server address. Please enter a valid IPv4 address."
-            } else {
-                null
-            }
+            serverAddressError =
+                if (serverAddress.text.isEmpty()) {
+                    "Server address cannot be empty"
+                } else if (!validateIpv4Address(serverAddress.text)) {
+                    "Invalid server address. Please enter a valid IPv4 address."
+                } else {
+                    null
+                }
 
-            serverPortError = if (serverPort.text.isEmpty()) {
-                "Port cannot be empty"
-            } else if (!validatePort(serverPort.text)) {
-                "Invalid port number. Must be between 0 and 65535."
-            } else {
-                null
-            }
+            serverPortError =
+                if (serverPort.text.isEmpty()) {
+                    "Port cannot be empty"
+                } else if (!validatePort(serverPort.text)) {
+                    "Invalid port number. Must be between 0 and 65535."
+                } else {
+                    null
+                }
         }
     }
 
@@ -113,21 +119,22 @@ fun ConnectScreen(navController: NavController, viewModel: ToyVpnViewModel) {
     }
 
     Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(defaultPadding),
+        modifier =
+            Modifier
+                .fillMaxSize()
+                .padding(defaultPadding),
         verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
+        horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center,
-            modifier = Modifier.padding(bottom = 32.dp)
+            modifier = Modifier.padding(bottom = 32.dp),
         ) {
             Image(
                 painter = painterResource(id = R.drawable.pcapplusplus_logo),
                 contentDescription = "Logo",
-                modifier = Modifier.size(200.dp)
+                modifier = Modifier.size(200.dp),
             )
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -135,7 +142,7 @@ fun ConnectScreen(navController: NavController, viewModel: ToyVpnViewModel) {
             Text(
                 text = "PcapPlusPlus Toy VPN",
                 fontSize = 32.sp,
-                color = Color.Black
+                color = Color.Black,
             )
         }
 
@@ -146,7 +153,7 @@ fun ConnectScreen(navController: NavController, viewModel: ToyVpnViewModel) {
             modifier = Modifier.fillMaxWidth(),
             leadingIcon = { Icon(imageVector = Icons.Default.Language, null) },
             shape = RoundedCornerShape(16.dp),
-            isError = serverAddressError != null
+            isError = serverAddressError != null,
         )
 
         serverAddressError?.let {
@@ -154,7 +161,7 @@ fun ConnectScreen(navController: NavController, viewModel: ToyVpnViewModel) {
                 text = it,
                 color = MaterialTheme.colorScheme.error,
                 style = MaterialTheme.typography.bodySmall,
-                modifier = Modifier.padding(top = 4.dp)
+                modifier = Modifier.padding(top = 4.dp),
             )
         }
 
@@ -168,7 +175,7 @@ fun ConnectScreen(navController: NavController, viewModel: ToyVpnViewModel) {
             keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number),
             leadingIcon = { Icon(imageVector = Icons.Default.Numbers, null) },
             shape = RoundedCornerShape(16.dp),
-            isError = serverPortError != null
+            isError = serverPortError != null,
         )
 
         serverPortError?.let {
@@ -176,7 +183,7 @@ fun ConnectScreen(navController: NavController, viewModel: ToyVpnViewModel) {
                 text = it,
                 color = MaterialTheme.colorScheme.error,
                 style = MaterialTheme.typography.bodySmall,
-                modifier = Modifier.padding(top = 4.dp)
+                modifier = Modifier.padding(top = 4.dp),
             )
         }
 
@@ -189,7 +196,7 @@ fun ConnectScreen(navController: NavController, viewModel: ToyVpnViewModel) {
             modifier = Modifier.fillMaxWidth(),
             leadingIcon = { Icon(imageVector = Icons.Default.Key, null) },
             shape = RoundedCornerShape(16.dp),
-            isError = secretError
+            isError = secretError,
         )
 
         if (secretError) {
@@ -197,7 +204,7 @@ fun ConnectScreen(navController: NavController, viewModel: ToyVpnViewModel) {
                 text = "Secret cannot be empty",
                 color = MaterialTheme.colorScheme.error,
                 style = MaterialTheme.typography.bodySmall,
-                modifier = Modifier.padding(top = 4.dp)
+                modifier = Modifier.padding(top = 4.dp),
             )
         }
 
@@ -205,9 +212,10 @@ fun ConnectScreen(navController: NavController, viewModel: ToyVpnViewModel) {
 
         Button(
             onClick = onConnectClicked,
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(60.dp),
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .height(60.dp),
             enabled = vpnConnectionState != VpnConnectionState.CONNECTING,
         ) {
             if (vpnConnectionState == VpnConnectionState.CONNECTING) {
@@ -222,7 +230,7 @@ fun ConnectScreen(navController: NavController, viewModel: ToyVpnViewModel) {
                 text = it,
                 color = MaterialTheme.colorScheme.error,
                 style = MaterialTheme.typography.bodySmall,
-                modifier = Modifier.padding(top = 4.dp)
+                modifier = Modifier.padding(top = 4.dp),
             )
         }
     }
@@ -233,5 +241,3 @@ fun ConnectScreen(navController: NavController, viewModel: ToyVpnViewModel) {
 fun PreviewConnectScreen() {
     ConnectScreen(navController = rememberNavController(), viewModel = viewModel())
 }
-
-

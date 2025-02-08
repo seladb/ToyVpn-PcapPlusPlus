@@ -52,11 +52,14 @@ import com.pcapplusplus.toyvpn.model.VpnConnectionState
 data class TrafficStat(
     val label: String,
     val count: Int,
-    val total: Int
+    val total: Int,
 )
 
 @Composable
-fun StatsScreen(navController: NavController, viewModel: ToyVpnViewModel) {
+fun StatsScreen(
+    navController: NavController,
+    viewModel: ToyVpnViewModel,
+) {
     val vpnConnectionState by viewModel.vpnConnectionState.observeAsState(VpnConnectionState.CONNECTED)
     val packetCount by viewModel.packetCount.observeAsState(0)
     val ipv4PacketCount by viewModel.ipv4PacketCount.observeAsState(0)
@@ -81,53 +84,58 @@ fun StatsScreen(navController: NavController, viewModel: ToyVpnViewModel) {
     }
 
     Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(
-                top = WindowInsets.statusBars
-                    .asPaddingValues()
-                    .calculateTopPadding(),
-                bottom = 40.dp,
-                start = 16.dp,
-                end = 16.dp,
-            )
-            .verticalScroll(rememberScrollState())
+        modifier =
+            Modifier
+                .fillMaxSize()
+                .padding(
+                    top =
+                        WindowInsets.statusBars
+                            .asPaddingValues()
+                            .calculateTopPadding(),
+                    bottom = 40.dp,
+                    start = 16.dp,
+                    end = 16.dp,
+                )
+                .verticalScroll(rememberScrollState()),
     ) {
         Text(
             text = "Network Traffic Dashboard",
             style = MaterialTheme.typography.titleLarge.copy(fontSize = 28.sp),
-            modifier = Modifier
-                .align(Alignment.CenterHorizontally)
-                .padding(bottom = 16.dp)
+            modifier =
+                Modifier
+                    .align(Alignment.CenterHorizontally)
+                    .padding(bottom = 16.dp),
         )
 
         StatsCard(
             label = "Total Packets",
-            value = packetCount.toString()
+            value = packetCount.toString(),
         )
 
         Spacer(modifier = Modifier.height(16.dp))
 
         TrafficStatsCard(
             title = "Packet Count by Protocol",
-            stats = listOf(
-                TrafficStat("IPv4", ipv4PacketCount, packetCount),
-                TrafficStat("IPv6", ipv6PacketCount, packetCount),
-                TrafficStat("TCP", tcpPacketCount, packetCount),
-                TrafficStat("UDP", udpPacketCount, packetCount),
-                TrafficStat("DNS", dnsPacketCount, packetCount),
-                TrafficStat("TLS", tlsPacketCount, packetCount)
-            )
+            stats =
+                listOf(
+                    TrafficStat("IPv4", ipv4PacketCount, packetCount),
+                    TrafficStat("IPv6", ipv6PacketCount, packetCount),
+                    TrafficStat("TCP", tcpPacketCount, packetCount),
+                    TrafficStat("UDP", udpPacketCount, packetCount),
+                    TrafficStat("DNS", dnsPacketCount, packetCount),
+                    TrafficStat("TLS", tlsPacketCount, packetCount),
+                ),
         )
 
         Spacer(modifier = Modifier.height(16.dp))
 
         TrafficStatsCard(
             title = "Connections",
-            stats = listOf(
-                TrafficStat("TCP", tcpConnections, tcpConnections + udpConnections),
-                TrafficStat("UDP", udpConnections, tcpConnections + udpConnections)
-            )
+            stats =
+                listOf(
+                    TrafficStat("TCP", tcpConnections, tcpConnections + udpConnections),
+                    TrafficStat("UDP", udpConnections, tcpConnections + udpConnections),
+                ),
         )
 
         Spacer(modifier = Modifier.height(16.dp))
@@ -143,9 +151,10 @@ fun StatsScreen(navController: NavController, viewModel: ToyVpnViewModel) {
         Button(
             onClick = onDisconnectClicked,
             enabled = vpnConnectionState != VpnConnectionState.DISCONNECTED,
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(60.dp),
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .height(60.dp),
         ) {
             if (vpnConnectionState == VpnConnectionState.DISCONNECTED) {
                 Text("Disconnecting...")
@@ -157,17 +166,21 @@ fun StatsScreen(navController: NavController, viewModel: ToyVpnViewModel) {
 }
 
 @Composable
-fun StatsCard(label: String, value: String) {
+fun StatsCard(
+    label: String,
+    value: String,
+) {
     Card(
         modifier = Modifier.fillMaxWidth(),
-        elevation = CardDefaults.cardElevation(4.dp)
+        elevation = CardDefaults.cardElevation(4.dp),
     ) {
         Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
             horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
+            verticalAlignment = Alignment.CenterVertically,
         ) {
             Text(text = label, style = MaterialTheme.typography.titleMedium.copy(fontSize = 22.sp))
             Text(text = value, style = MaterialTheme.typography.titleMedium.copy(fontSize = 22.sp))
@@ -176,18 +189,21 @@ fun StatsCard(label: String, value: String) {
 }
 
 @Composable
-fun TrafficStatsCard(title: String, stats: List<TrafficStat>) {
+fun TrafficStatsCard(
+    title: String,
+    stats: List<TrafficStat>,
+) {
     Card(
         modifier = Modifier.fillMaxWidth(),
-        elevation = CardDefaults.cardElevation(4.dp)
+        elevation = CardDefaults.cardElevation(4.dp),
     ) {
         Column(
-            modifier = Modifier.padding(16.dp)
+            modifier = Modifier.padding(16.dp),
         ) {
             Text(
                 text = title,
                 style = MaterialTheme.typography.titleLarge.copy(fontSize = 26.sp),
-                modifier = Modifier.padding(bottom = 16.dp)
+                modifier = Modifier.padding(bottom = 16.dp),
             )
             stats.forEach { stat ->
                 TrafficStatRow(stat)
@@ -200,12 +216,12 @@ fun TrafficStatsCard(title: String, stats: List<TrafficStat>) {
 fun TrafficStatRow(stat: TrafficStat) {
     Row(
         modifier = Modifier.fillMaxWidth(),
-        verticalAlignment = Alignment.CenterVertically
+        verticalAlignment = Alignment.CenterVertically,
     ) {
         Text(
             text = stat.label,
             style = MaterialTheme.typography.titleMedium.copy(fontSize = 20.sp),
-            modifier = Modifier.wrapContentWidth(Alignment.Start)
+            modifier = Modifier.wrapContentWidth(Alignment.Start),
         )
         Spacer(modifier = Modifier.width(8.dp))
         ProgressBar(modifier = Modifier.weight(1f), count = stat.count, total = stat.total)
@@ -219,33 +235,41 @@ fun TrafficStatRow(stat: TrafficStat) {
 }
 
 @Composable
-fun ProgressBar(modifier: Modifier, count: Int, total: Int) {
+fun ProgressBar(
+    modifier: Modifier,
+    count: Int,
+    total: Int,
+) {
     val progress = (count.toFloat() / total).coerceIn(0f, 1f)
 
     Box(modifier = modifier) {
         LinearProgressIndicator(
             progress = { progress },
-            modifier = Modifier
-                .height(8.dp)
-                .padding(end = 8.dp),
+            modifier =
+                Modifier
+                    .height(8.dp)
+                    .padding(end = 8.dp),
             color = MaterialTheme.colorScheme.primary,
         )
     }
 }
 
 @Composable
-fun DomainsCard(title: String, stats: List<DomainData>?) {
+fun DomainsCard(
+    title: String,
+    stats: List<DomainData>?,
+) {
     Card(
         modifier = Modifier.fillMaxWidth(),
-        elevation = CardDefaults.cardElevation(4.dp)
+        elevation = CardDefaults.cardElevation(4.dp),
     ) {
         Column(
-            modifier = Modifier.padding(16.dp)
+            modifier = Modifier.padding(16.dp),
         ) {
             Text(
                 text = title,
                 style = MaterialTheme.typography.titleLarge.copy(fontSize = 26.sp),
-                modifier = Modifier.padding(bottom = 16.dp)
+                modifier = Modifier.padding(bottom = 16.dp),
             )
             stats?.forEach { stat ->
                 DomainRow(stat)
@@ -261,35 +285,37 @@ fun DomainRow(stat: DomainData) {
     Row(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically
+        verticalAlignment = Alignment.CenterVertically,
     ) {
         Icon(
             imageVector = Icons.Default.Language,
             contentDescription = "DNS query",
-            modifier = Modifier.size(24.dp),  // You can adjust the size of the icon
-            tint = MaterialTheme.colorScheme.primary // Optional: Customize icon color if needed
+            modifier = Modifier.size(24.dp),
+            tint = MaterialTheme.colorScheme.primary,
         )
         Spacer(modifier = Modifier.width(8.dp))
         Text(
             text = stat.domain,
-            style = MaterialTheme.typography.titleMedium.copy(
-                fontSize = 22.sp,
-                color = Color.Blue,
-                textDecoration = TextDecoration.Underline
-            ),
-            modifier = Modifier
-                .clickable {
-                    val url = "https://${stat.domain}"
-                    val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
-                    context.startActivity(intent)
-                }
-                .weight(1f),
+            style =
+                MaterialTheme.typography.titleMedium.copy(
+                    fontSize = 22.sp,
+                    color = Color.Blue,
+                    textDecoration = TextDecoration.Underline,
+                ),
+            modifier =
+                Modifier
+                    .clickable {
+                        val url = "https://${stat.domain}"
+                        val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
+                        context.startActivity(intent)
+                    }
+                    .weight(1f),
             maxLines = 1,
-            overflow = TextOverflow.Ellipsis
+            overflow = TextOverflow.Ellipsis,
         )
         Text(
             text = stat.count.toString(),
-            style = MaterialTheme.typography.titleMedium.copy(fontSize = 22.sp)
+            style = MaterialTheme.typography.titleMedium.copy(fontSize = 22.sp),
         )
     }
 }

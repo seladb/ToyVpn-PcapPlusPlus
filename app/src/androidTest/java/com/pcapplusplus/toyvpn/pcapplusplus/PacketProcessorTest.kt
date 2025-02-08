@@ -20,7 +20,7 @@ class PacketProcessorTest {
         every { mockPcapPlusPlusInterface.analyzePacket(any()) } returns "{\"isIPv4\": true, \"length\": 10}".toByteArray()
         assertEquals(
             PacketData(isIPv4 = true, length = 10),
-            packetProcessor.processPacket(analyzePacketInput)
+            packetProcessor.processPacket(analyzePacketInput),
         )
     }
 

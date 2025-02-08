@@ -6,7 +6,7 @@ data class VpnSettings(
     val routeAddress: String,
     val routePrefixLength: Int,
     val mtu: Int,
-    val dnsServer: String? = null
+    val dnsServer: String? = null,
 ) {
     companion object {
         fun fromParamString(parameters: String): VpnSettings {
@@ -55,7 +55,7 @@ data class VpnSettings(
                 dnsServer = dnsServer,
                 mtu = mtu ?: 1400,
                 routeAddress = routeAddress ?: "0.0.0.0",
-                routePrefixLength = routePrefixLength ?: 0
+                routePrefixLength = routePrefixLength ?: 0,
             )
         }
     }

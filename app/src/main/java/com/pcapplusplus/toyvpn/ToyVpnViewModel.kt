@@ -11,7 +11,8 @@ import com.pcapplusplus.toyvpn.model.PacketData
 import com.pcapplusplus.toyvpn.model.VpnConnectionState
 import kotlinx.coroutines.launch
 
-class ToyVpnViewModel(private val vpnServiceManager: ToyVpnServiceManager) : ViewModel(),
+class ToyVpnViewModel(private val vpnServiceManager: ToyVpnServiceManager) :
+    ViewModel(),
     PacketDataHandler {
     private val _vpnConnectionState = MutableLiveData(VpnConnectionState.DISCONNECTED)
     private val _vpnConnectionError = MutableLiveData<String?>(null)
@@ -71,7 +72,11 @@ class ToyVpnViewModel(private val vpnServiceManager: ToyVpnServiceManager) : Vie
         const val TOP_TLS_SERVER_NAMES_TIME_WINDOW_MSEC = 5 * 60 * 1000
     }
 
-    fun connectVpn(serverAddress: String, serverPort: Int, secret: String) {
+    fun connectVpn(
+        serverAddress: String,
+        serverPort: Int,
+        secret: String,
+    ) {
         _packetCount.postValue(0)
         _ipv4PacketCount.postValue(0)
         _ipv6PacketCount.postValue(0)

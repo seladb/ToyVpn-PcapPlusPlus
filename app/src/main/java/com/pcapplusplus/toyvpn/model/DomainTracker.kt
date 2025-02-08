@@ -2,7 +2,7 @@ package com.pcapplusplus.toyvpn.model
 
 class DomainTracker(
     private val timeWindowMillis: Int,
-    private val timeProvider: TimeProvider = TimeProvider()
+    private val timeProvider: TimeProvider = TimeProvider(),
 ) {
     private val domainData = HashMap<String, MutableList<Long>>()
 

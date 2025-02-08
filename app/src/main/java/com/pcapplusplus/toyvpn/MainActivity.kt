@@ -40,12 +40,12 @@ class MainActivity : ComponentActivity() {
 
                 NavHost(
                     navController = navController,
-                    startDestination = "connect_screen"
+                    startDestination = "connect_screen",
                 ) {
                     composable("connect_screen") {
                         ConnectScreen(
                             navController,
-                            toyVpnViewModel
+                            toyVpnViewModel,
                         )
                     }
                     composable("stats_screen") {
@@ -61,7 +61,6 @@ class MainActivity : ComponentActivity() {
         toyVpnServiceManager.close()
     }
 }
-
 
 @Preview(showBackground = true)
 @Composable

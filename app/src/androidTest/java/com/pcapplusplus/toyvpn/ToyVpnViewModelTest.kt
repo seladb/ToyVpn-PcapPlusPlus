@@ -115,9 +115,9 @@ class ToyVpnViewModelTest {
                 PacketData(
                     isTCP = true,
                     connectionID = 1L,
-                    length = 10
-                )
-            )
+                    length = 10,
+                ),
+            ),
         )
         assertEquals(1, viewModel.tcpConnectionCount.value)
         viewModel.onPacketDataArrives(
@@ -125,9 +125,9 @@ class ToyVpnViewModelTest {
                 PacketData(
                     isTCP = true,
                     connectionID = 1L,
-                    length = 10
-                )
-            )
+                    length = 10,
+                ),
+            ),
         )
         assertEquals(1, viewModel.tcpConnectionCount.value)
         viewModel.onPacketDataArrives(
@@ -135,9 +135,9 @@ class ToyVpnViewModelTest {
                 PacketData(
                     isTCP = true,
                     connectionID = 2L,
-                    length = 10
-                )
-            )
+                    length = 10,
+                ),
+            ),
         )
         assertEquals(2, viewModel.tcpConnectionCount.value)
 
@@ -146,9 +146,9 @@ class ToyVpnViewModelTest {
                 PacketData(
                     isUDP = true,
                     connectionID = 1L,
-                    length = 10
-                )
-            )
+                    length = 10,
+                ),
+            ),
         )
         assertEquals(1, viewModel.udpConnectionCount.value)
         viewModel.onPacketDataArrives(
@@ -156,9 +156,9 @@ class ToyVpnViewModelTest {
                 PacketData(
                     isUDP = true,
                     connectionID = 1L,
-                    length = 10
-                )
-            )
+                    length = 10,
+                ),
+            ),
         )
         assertEquals(1, viewModel.udpConnectionCount.value)
         viewModel.onPacketDataArrives(
@@ -166,9 +166,9 @@ class ToyVpnViewModelTest {
                 PacketData(
                     isUDP = true,
                     connectionID = 2L,
-                    length = 10
-                )
-            )
+                    length = 10,
+                ),
+            ),
         )
         assertEquals(2, viewModel.udpConnectionCount.value)
 
@@ -179,17 +179,17 @@ class ToyVpnViewModelTest {
             arrayListOf(
                 PacketData(
                     tlsServerName = "test.com",
-                    length = 10
-                )
-            )
+                    length = 10,
+                ),
+            ),
         )
         assertEquals(listOf(DomainData("test.com", 1)), viewModel.topTlsServerNames.value)
 
         viewModel.onPacketDataArrives(
             arrayListOf(
                 PacketData(isIPv4 = true, length = 10),
-                PacketData(isIPv4 = true, length = 10)
-            )
+                PacketData(isIPv4 = true, length = 10),
+            ),
         )
         assertEquals(3, viewModel.ipv4PacketCount.value)
 
@@ -197,18 +197,20 @@ class ToyVpnViewModelTest {
     }
 
     @Test
-    fun testVpnConnectionStateChange() = runTest {
-        assertEquals(VpnConnectionState.DISCONNECTED, viewModel.vpnConnectionState.value)
+    fun testVpnConnectionStateChange() =
+        runTest {
+            assertEquals(VpnConnectionState.DISCONNECTED, viewModel.vpnConnectionState.value)
 
-        vpnConnectionState.value = VpnConnectionState.CONNECTED
-        waitFor { viewModel.vpnConnectionState.value == VpnConnectionState.CONNECTED }
-    }
+            vpnConnectionState.value = VpnConnectionState.CONNECTED
+            waitFor { viewModel.vpnConnectionState.value == VpnConnectionState.CONNECTED }
+        }
 
     @Test
-    fun testVpnConnectionError() = runTest {
-        assertNull(viewModel.vpnConnectionError.value)
+    fun testVpnConnectionError() =
+        runTest {
+            assertNull(viewModel.vpnConnectionError.value)
 
-        vpnConnectionError.value = "Some error"
-        waitFor { viewModel.vpnConnectionError.value == "Some error" }
-    }
+            vpnConnectionError.value = "Some error"
+            waitFor { viewModel.vpnConnectionError.value == "Some error" }
+        }
 }

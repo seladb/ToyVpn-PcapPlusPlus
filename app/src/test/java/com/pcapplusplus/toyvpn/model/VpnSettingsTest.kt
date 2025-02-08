@@ -1,6 +1,9 @@
 import com.pcapplusplus.toyvpn.model.VpnSettings
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertNull
+import org.junit.jupiter.api.Assertions.assertThrows
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.Assertions.*
 
 class VpnSettingsTest {
     @Test
@@ -44,9 +47,10 @@ class VpnSettingsTest {
         val invalidParamString = "a,192.168.1.1,not_a_number"
 
         // The exception should be thrown for invalid format
-        val exception = assertThrows(IllegalArgumentException::class.java) {
-            VpnSettings.fromParamString(invalidParamString)
-        }
+        val exception =
+            assertThrows(IllegalArgumentException::class.java) {
+                VpnSettings.fromParamString(invalidParamString)
+            }
         assertTrue(exception.message?.contains("Bad parameter") == true)
     }
 
@@ -55,9 +59,10 @@ class VpnSettingsTest {
         val paramString = "a,192.168.1.1 r,10.0.0.1,16"
 
         // The exception should be thrown for missing client address prefix length
-        val exception = assertThrows(IllegalArgumentException::class.java) {
-            VpnSettings.fromParamString(paramString)
-        }
+        val exception =
+            assertThrows(IllegalArgumentException::class.java) {
+                VpnSettings.fromParamString(paramString)
+            }
         assertTrue(exception.message?.contains("Bad parameter") == true)
     }
 

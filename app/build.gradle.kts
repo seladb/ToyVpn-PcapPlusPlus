@@ -4,6 +4,7 @@ plugins {
     alias(libs.plugins.kotlin.compose)
     kotlin("plugin.serialization") version "2.1.0"
     id("kotlin-parcelize")
+    id("org.jlleitschuh.gradle.ktlint") version "12.1.2"
 }
 
 android {
@@ -24,7 +25,7 @@ android {
             isMinifyEnabled = false
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
-                "proguard-rules.pro"
+                "proguard-rules.pro",
             )
         }
     }

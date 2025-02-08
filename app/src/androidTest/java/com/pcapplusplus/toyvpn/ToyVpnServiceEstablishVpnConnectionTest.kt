@@ -20,14 +20,15 @@ import java.nio.channels.DatagramChannel
 class ToyVpnServiceEstablishVpnConnectionTest {
     private val vpnService = spyk(ToyVpnService(), recordPrivateCalls = true)
     private val mockDatagramChannel = mockk<DatagramChannel>()
-    private val establishVpnConnectionMethod = vpnService::class.java.getDeclaredMethod(
-        "establishVpnConnection",
-        String::class.java,
-        Int::class.java,
-        String::class.java,
-    ).apply {
-        isAccessible = true
-    }
+    private val establishVpnConnectionMethod =
+        vpnService::class.java.getDeclaredMethod(
+            "establishVpnConnection",
+            String::class.java,
+            Int::class.java,
+            String::class.java,
+        ).apply {
+            isAccessible = true
+        }
 
     private fun callEstablishVpnConnection(
         serverAddress: String = "1.2.3.4",
@@ -38,7 +39,7 @@ class ToyVpnServiceEstablishVpnConnectionTest {
         try {
             return establishVpnConnectionMethod.invoke(
                 vpnService,
-                *parameters
+                *parameters,
             ) as DatagramChannel
         } catch (ex: InvocationTargetException) {
             throw ex.cause!!
@@ -47,21 +48,22 @@ class ToyVpnServiceEstablishVpnConnectionTest {
 
     @Test
     fun testSuccess() {
-        val vpnSettings = VpnSettings(
-            clientAddress = "1.2.3.4",
-            clientAddressPrefixLength = 24,
-            routeAddress = "0.0.0.0",
-            routePrefixLength = 0,
-            mtu = 1400,
-            dnsServer = "8.8.8.8"
-        )
+        val vpnSettings =
+            VpnSettings(
+                clientAddress = "1.2.3.4",
+                clientAddressPrefixLength = 24,
+                routeAddress = "0.0.0.0",
+                routePrefixLength = 0,
+                mtu = 1400,
+                dnsServer = "8.8.8.8",
+            )
         every { vpnService.sendBroadcast(any<Intent>()) } answers {}
         every {
             vpnService["handshake"](
                 any<String>(),
                 any<Int>(),
                 any<String>(),
-                any<Boolean>()
+                any<Boolean>(),
             )
         } answers {
             Pair(mockDatagramChannel, vpnSettings)
@@ -73,14 +75,14 @@ class ToyVpnServiceEstablishVpnConnectionTest {
         every {
             anyConstructed<VpnService.Builder>().addAddress(
                 any<String>(),
-                any<Int>()
+                any<Int>(),
             )
         } returns mockBuilder
         every { anyConstructed<VpnService.Builder>().setMtu(any<Int>()) } returns mockBuilder
         every {
             anyConstructed<VpnService.Builder>().addRoute(
                 any<String>(),
-                any<Int>()
+                any<Int>(),
             )
         } returns mockBuilder
         every { anyConstructed<VpnService.Builder>().addDnsServer(any<String>()) } returns mockBuilder
@@ -93,12 +95,12 @@ class ToyVpnServiceEstablishVpnConnectionTest {
             anyConstructed<VpnService.Builder>().setSession("ToyVPN")
             anyConstructed<VpnService.Builder>().addAddress(
                 vpnSettings.clientAddress,
-                vpnSettings.clientAddressPrefixLength
+                vpnSettings.clientAddressPrefixLength,
             )
             anyConstructed<VpnService.Builder>().setMtu(vpnSettings.mtu)
             anyConstructed<VpnService.Builder>().addRoute(
                 vpnSettings.routeAddress,
-                vpnSettings.routePrefixLength
+                vpnSettings.routePrefixLength,
             )
             anyConstructed<VpnService.Builder>().addDnsServer("8.8.8.8")
             anyConstructed<VpnService.Builder>().establish()

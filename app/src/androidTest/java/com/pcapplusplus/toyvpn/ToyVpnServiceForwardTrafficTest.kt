@@ -23,20 +23,23 @@ class ToyVpnServiceForwardTrafficTest {
     private val mockInputStream = mockk<FileInputStream>()
     private val mockOutputStream = mockk<FileOutputStream>()
     private val mockDatagramChannel = mockk<DatagramChannel>()
-    private val forwardTrafficMethod = vpnService::class.java.getDeclaredMethod(
-        "forwardTraffic",
-        FileInputStream::class.java,
-        FileOutputStream::class.java,
-        DatagramChannel::class.java,
-    ).apply {
-        isAccessible = true
-    }
-    private val vpnConnected = vpnService::class.java.getDeclaredField("vpnConnected").apply {
-        isAccessible = true
-    }
-    private val vpnInterface = vpnService::class.java.getDeclaredField("vpnInterface").apply {
-        isAccessible = true
-    }
+    private val forwardTrafficMethod =
+        vpnService::class.java.getDeclaredMethod(
+            "forwardTraffic",
+            FileInputStream::class.java,
+            FileOutputStream::class.java,
+            DatagramChannel::class.java,
+        ).apply {
+            isAccessible = true
+        }
+    private val vpnConnected =
+        vpnService::class.java.getDeclaredField("vpnConnected").apply {
+            isAccessible = true
+        }
+    private val vpnInterface =
+        vpnService::class.java.getDeclaredField("vpnInterface").apply {
+            isAccessible = true
+        }
 
     private fun callForwardTraffic() {
         val parameters = arrayOf(mockInputStream, mockOutputStream, mockDatagramChannel)
@@ -51,15 +54,16 @@ class ToyVpnServiceForwardTrafficTest {
     fun testForwardTraffic() {
         var fromDeviceCounter = 0
         every { mockInputStream.read(any<ByteArray>()) } answers {
-            val dataSize = if (fromDeviceCounter < ToyVpnService.PACKET_DATA_BATCH_SIZE) {
-                val data = "from device $fromDeviceCounter".toByteArray()
-                for (i in data.indices) {
-                    firstArg<ByteArray>()[i] = data[i]
+            val dataSize =
+                if (fromDeviceCounter < ToyVpnService.PACKET_DATA_BATCH_SIZE) {
+                    val data = "from device $fromDeviceCounter".toByteArray()
+                    for (i in data.indices) {
+                        firstArg<ByteArray>()[i] = data[i]
+                    }
+                    data.size
+                } else {
+                    0
                 }
-                data.size
-            } else {
-                0
-            }
 
             fromDeviceCounter++
 
@@ -72,22 +76,24 @@ class ToyVpnServiceForwardTrafficTest {
 
         val dataSentToDevice = mutableListOf<String>()
         every { mockOutputStream.write(any<ByteArray>(), any<Int>(), any<Int>()) } answers {
-            val subArray = firstArg<ByteArray>().copyOfRange(
-                secondArg<Int>(),
-                secondArg<Int>() + thirdArg<Int>()
-            )
+            val subArray =
+                firstArg<ByteArray>().copyOfRange(
+                    secondArg<Int>(),
+                    secondArg<Int>() + thirdArg<Int>(),
+                )
             dataSentToDevice.add(String(subArray))
         }
 
         var fromTunnelCounter = 0
         every { mockDatagramChannel.read(any<ByteBuffer>()) } answers {
-            val dataSize = if (fromTunnelCounter < ToyVpnService.PACKET_DATA_BATCH_SIZE) {
-                val data = "from tunnel $fromTunnelCounter".toByteArray()
-                firstArg<ByteBuffer>().put(data)
-                data.size
-            } else {
-                0
-            }
+            val dataSize =
+                if (fromTunnelCounter < ToyVpnService.PACKET_DATA_BATCH_SIZE) {
+                    val data = "from tunnel $fromTunnelCounter".toByteArray()
+                    firstArg<ByteBuffer>().put(data)
+                    data.size
+                } else {
+                    0
+                }
 
             fromTunnelCounter++
             dataSize
@@ -129,7 +135,7 @@ class ToyVpnServiceForwardTrafficTest {
         assertEquals(ToyVpnService.SEND_CONTROL_PACKET_COUNT, controlPacketCount)
         assertEquals(
             expectedDataSentToTunnel.size + expectedDataSentToDevice.size,
-            packetDataBroadcastCount
+            packetDataBroadcastCount,
         )
     }
 }

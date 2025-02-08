@@ -49,15 +49,19 @@ class ToyVpnService : VpnService() {
     }
 
     @SuppressLint("SyntheticAccessor")
-    private val broadcastReceiver = object : BroadcastReceiver() {
-        override fun onReceive(context: Context?, intent: Intent?) {
-            if (intent?.action == BroadcastActions.VPN_SERVICE_STOP) {
-                Log.w(LOG_TAG, "Got ${BroadcastActions.VPN_SERVICE_STOP}, stopping self")
-                stopSelf()
-                disconnectVpn()
+    private val broadcastReceiver =
+        object : BroadcastReceiver() {
+            override fun onReceive(
+                context: Context?,
+                intent: Intent?,
+            ) {
+                if (intent?.action == BroadcastActions.VPN_SERVICE_STOP) {
+                    Log.w(LOG_TAG, "Got ${BroadcastActions.VPN_SERVICE_STOP}, stopping self")
+                    stopSelf()
+                    disconnectVpn()
+                }
             }
         }
-    }
 
     @SuppressLint("UnspecifiedRegisterReceiverFlag")
     override fun onCreate() {
@@ -67,28 +71,33 @@ class ToyVpnService : VpnService() {
             registerReceiver(
                 broadcastReceiver,
                 IntentFilter(BroadcastActions.VPN_SERVICE_STOP),
-                Context.RECEIVER_EXPORTED
+                Context.RECEIVER_EXPORTED,
             )
         } else {
             registerReceiver(broadcastReceiver, IntentFilter(BroadcastActions.VPN_SERVICE_STOP))
         }
     }
 
-    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+    override fun onStartCommand(
+        intent: Intent?,
+        flags: Int,
+        startId: Int,
+    ): Int {
         try {
             val serverAddress = requireNotNull(intent?.getStringExtra("serverAddress"))
             val serverPort = requireNotNull(intent?.getIntExtra("serverPort", 0))
             val serverSecret = requireNotNull(intent?.getStringExtra("serverSecret"))
 
             vpnServiceScope.launch {
-                val establishVpnResult = async {
-                    try {
-                        establishVpnConnection(serverAddress, serverPort, serverSecret)
-                    } catch (e: Exception) {
-                        stopSelfOnError("Error establishing the VPN connection", e)
-                        null
+                val establishVpnResult =
+                    async {
+                        try {
+                            establishVpnConnection(serverAddress, serverPort, serverSecret)
+                        } catch (e: Exception) {
+                            stopSelfOnError("Error establishing the VPN connection", e)
+                            null
+                        }
                     }
-                }
 
                 val vpnTunnel = establishVpnResult.await() ?: return@launch
 
@@ -110,7 +119,7 @@ class ToyVpnService : VpnService() {
     private fun establishVpnConnection(
         serverAddress: String,
         serverPort: Int,
-        secret: String
+        secret: String,
     ): DatagramChannel {
         val handshakeResponse = handshake(serverAddress, serverPort, secret)
         val vpnSettings = handshakeResponse.second
@@ -132,7 +141,7 @@ class ToyVpnService : VpnService() {
 
         Log.w(
             LOG_TAG,
-            "vpnInterface: $vpnInterface, ${vpnInterface?.fileDescriptor}"
+            "vpnInterface: $vpnInterface, ${vpnInterface?.fileDescriptor}",
         )
         sendBroadcast(Intent(BroadcastActions.VPN_SERVICE_STARTED))
         Log.w(LOG_TAG, "broadcast ${BroadcastActions.VPN_SERVICE_STARTED}")
@@ -142,7 +151,7 @@ class ToyVpnService : VpnService() {
     private fun forwardTraffic(
         inputStream: FileInputStream,
         outputStream: FileOutputStream,
-        tunnel: DatagramChannel
+        tunnel: DatagramChannel,
     ) {
         val packet = ByteBuffer.allocate(MAX_PACKET_SIZE)
 
@@ -206,10 +215,14 @@ class ToyVpnService : VpnService() {
                 lastPacketDataSentTimestamp = curTimestamp
             }
             packetDataList.add(packetData)
-            if (packetDataList.size >= PACKET_DATA_BATCH_SIZE || curTimestamp - lastPacketDataSentTimestamp > PACKET_DATA_BATCH_INTERVAL_MSEC) {
-                val intent = Intent(BroadcastActions.VPN_SERVICE_PACKET_ARRIVED).apply {
-                    putParcelableArrayListExtra("packetData", ArrayList(packetDataList))
-                }
+            if (
+                packetDataList.size >= PACKET_DATA_BATCH_SIZE ||
+                curTimestamp - lastPacketDataSentTimestamp > PACKET_DATA_BATCH_INTERVAL_MSEC
+            ) {
+                val intent =
+                    Intent(BroadcastActions.VPN_SERVICE_PACKET_ARRIVED).apply {
+                        putParcelableArrayListExtra("packetData", ArrayList(packetDataList))
+                    }
                 Log.w(LOG_TAG, "sending ${packetDataList.size} packet data")
                 sendBroadcast(intent)
                 packetDataList.clear()
@@ -222,7 +235,7 @@ class ToyVpnService : VpnService() {
         serverAddress: String,
         serverPort: Int,
         secret: String,
-        protectTunnel: Boolean = true
+        protectTunnel: Boolean = true,
     ): Pair<DatagramChannel, VpnSettings> {
         Log.w(LOG_TAG, "Starting handshake")
 
@@ -283,12 +296,16 @@ class ToyVpnService : VpnService() {
         }
     }
 
-    private fun stopSelfOnError(errorMessage: String, exception: java.lang.Exception) {
+    private fun stopSelfOnError(
+        errorMessage: String,
+        exception: java.lang.Exception,
+    ) {
         Log.e(LOG_TAG, errorMessage, exception)
 
-        val intent = Intent(BroadcastActions.VPN_SERVICE_ERROR).apply {
-            putExtra("errorMessage", errorMessage)
-        }
+        val intent =
+            Intent(BroadcastActions.VPN_SERVICE_ERROR).apply {
+                putExtra("errorMessage", errorMessage)
+            }
         Log.w(LOG_TAG, "Sending broadcast on error: $errorMessage")
         sendBroadcast(intent)
 

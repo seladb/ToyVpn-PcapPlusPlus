@@ -28,12 +28,14 @@ class ToyVpnServiceManagerTest {
     private val context = InstrumentationRegistry.getInstrumentation().targetContext
     private val mockActivityResultLauncher = mockk<ActivityResultLauncher<Intent>>(relaxed = true)
     private val mockVpnServiceProxy = mockk<DefaultVpnServiceProxy>(relaxed = true)
-    private val packetDataHandler = object : PacketDataHandler {
-        val packetDatasArrived = ArrayList<PacketData>()
-        override fun onPacketDataArrives(packetDataList: ArrayList<PacketData>) {
-            packetDatasArrived.addAll(packetDataList)
+    private val packetDataHandler =
+        object : PacketDataHandler {
+            val packetDatasArrived = ArrayList<PacketData>()
+
+            override fun onPacketDataArrives(packetDataList: ArrayList<PacketData>) {
+                packetDatasArrived.addAll(packetDataList)
+            }
         }
-    }
 
     private lateinit var serviceManager: ToyVpnServiceManager
 
@@ -79,81 +81,94 @@ class ToyVpnServiceManagerTest {
         assertNull(serviceManager.vpnConnectionError.value)
 
         verify {
-            mockVpnServiceProxy.startVpnService(withArg {
-                assertEquals(serverAddress, it.getStringExtra("serverAddress"))
-                assertEquals(serverPort, it.getIntExtra("serverPort", 0))
-                assertEquals(secret, it.getStringExtra("serverSecret"))
-            })
+            mockVpnServiceProxy.startVpnService(
+                withArg {
+                    assertEquals(serverAddress, it.getStringExtra("serverAddress"))
+                    assertEquals(serverPort, it.getIntExtra("serverPort", 0))
+                    assertEquals(secret, it.getStringExtra("serverSecret"))
+                },
+            )
         }
     }
 
     @Test
-    fun testStopVpnService() = runTest {
-        val receiver = object : BroadcastReceiver() {
-            var gotStopVpnIntent = false
-            override fun onReceive(context: Context?, intent: Intent?) {
-                if (intent?.action == BroadcastActions.VPN_SERVICE_STOP) {
-                    gotStopVpnIntent = true
+    fun testStopVpnService() =
+        runTest {
+            val receiver =
+                object : BroadcastReceiver() {
+                    var gotStopVpnIntent = false
+
+                    override fun onReceive(
+                        context: Context?,
+                        intent: Intent?,
+                    ) {
+                        if (intent?.action == BroadcastActions.VPN_SERVICE_STOP) {
+                            gotStopVpnIntent = true
+                        }
+                    }
                 }
+
+            try {
+                context.registerReceiver(
+                    receiver,
+                    IntentFilter(BroadcastActions.VPN_SERVICE_STOP),
+                    Context.RECEIVER_EXPORTED,
+                )
+
+                serviceManager.stopVpnService()
+                assertEquals(VpnConnectionState.DISCONNECTING, serviceManager.vpnServiceState.value)
+                assertNull(serviceManager.vpnConnectionError.value)
+
+                waitFor { receiver.gotStopVpnIntent }
+            } finally {
+                context.unregisterReceiver(receiver)
             }
         }
 
-        try {
-            context.registerReceiver(
-                receiver,
-                IntentFilter(BroadcastActions.VPN_SERVICE_STOP),
-                Context.RECEIVER_EXPORTED
-            )
+    @Test
+    fun testReceiveVpnStartedAndStoppedEvent() =
+        runTest {
+            context.sendBroadcast(Intent(BroadcastActions.VPN_SERVICE_STARTED))
+            waitFor { serviceManager.vpnServiceState.value == VpnConnectionState.CONNECTED }
 
-            serviceManager.stopVpnService()
-            assertEquals(VpnConnectionState.DISCONNECTING, serviceManager.vpnServiceState.value)
+            context.sendBroadcast(Intent(BroadcastActions.VPN_SERVICE_STOPPED))
+            waitFor { serviceManager.vpnServiceState.value == VpnConnectionState.DISCONNECTED }
+        }
+
+    @Test
+    fun testReceiveVpnErrorEvent() =
+        runTest {
+            context.sendBroadcast(Intent(BroadcastActions.VPN_SERVICE_STARTED))
+            waitFor { serviceManager.vpnServiceState.value == VpnConnectionState.CONNECTED }
             assertNull(serviceManager.vpnConnectionError.value)
 
-            waitFor { receiver.gotStopVpnIntent }
-        } finally {
-            context.unregisterReceiver(receiver)
+            val errorMessage = "Some error"
+            val errorIntent =
+                Intent(BroadcastActions.VPN_SERVICE_ERROR).apply {
+                    putExtra("errorMessage", errorMessage)
+                }
 
-        }
-    }
+            context.sendBroadcast(errorIntent)
 
-    @Test
-    fun testReceiveVpnStartedAndStoppedEvent() = runTest {
-        context.sendBroadcast(Intent(BroadcastActions.VPN_SERVICE_STARTED))
-        waitFor { serviceManager.vpnServiceState.value == VpnConnectionState.CONNECTED }
-
-        context.sendBroadcast(Intent(BroadcastActions.VPN_SERVICE_STOPPED))
-        waitFor { serviceManager.vpnServiceState.value == VpnConnectionState.DISCONNECTED }
-    }
-
-    @Test
-    fun testReceiveVpnErrorEvent() = runTest {
-        context.sendBroadcast(Intent(BroadcastActions.VPN_SERVICE_STARTED))
-        waitFor { serviceManager.vpnServiceState.value == VpnConnectionState.CONNECTED }
-        assertNull(serviceManager.vpnConnectionError.value)
-
-        val errorMessage = "Some error"
-        val errorIntent = Intent(BroadcastActions.VPN_SERVICE_ERROR).apply {
-            putExtra("errorMessage", errorMessage)
+            waitFor { serviceManager.vpnServiceState.value == VpnConnectionState.DISCONNECTED }
+            waitFor { serviceManager.vpnConnectionError.value == errorMessage }
         }
 
-        context.sendBroadcast(errorIntent)
-
-        waitFor { serviceManager.vpnServiceState.value == VpnConnectionState.DISCONNECTED }
-        waitFor { serviceManager.vpnConnectionError.value == errorMessage }
-    }
-
     @Test
-    fun testReceivePacketArrivedEvent() = runTest {
-        val packetDatas = arrayListOf(
-            PacketData(isIPv4 = true, length = 10),
-            PacketData(isTCP = true, length = 100)
-        )
-        val packetArrivedIntent = Intent(BroadcastActions.VPN_SERVICE_PACKET_ARRIVED).apply {
-            putParcelableArrayListExtra("packetData", packetDatas)
+    fun testReceivePacketArrivedEvent() =
+        runTest {
+            val packetDatas =
+                arrayListOf(
+                    PacketData(isIPv4 = true, length = 10),
+                    PacketData(isTCP = true, length = 100),
+                )
+            val packetArrivedIntent =
+                Intent(BroadcastActions.VPN_SERVICE_PACKET_ARRIVED).apply {
+                    putParcelableArrayListExtra("packetData", packetDatas)
+                }
+
+            context.sendBroadcast(packetArrivedIntent)
+
+            waitFor { packetDataHandler.packetDatasArrived == packetDatas }
         }
-
-        context.sendBroadcast(packetArrivedIntent)
-
-        waitFor { packetDataHandler.packetDatasArrived == packetDatas }
-    }
 }

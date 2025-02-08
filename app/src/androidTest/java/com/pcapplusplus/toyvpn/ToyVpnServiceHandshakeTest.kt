@@ -19,15 +19,16 @@ import java.nio.channels.DatagramChannel
 @RunWith(AndroidJUnit4::class)
 class ToyVpnServiceHandshakeTest {
     private val vpnService = ToyVpnService()
-    private val handshakeMethod = vpnService::class.java.getDeclaredMethod(
-        "handshake",
-        String::class.java,
-        Int::class.java,
-        String::class.java,
-        Boolean::class.java
-    ).apply {
-        isAccessible = true
-    }
+    private val handshakeMethod =
+        vpnService::class.java.getDeclaredMethod(
+            "handshake",
+            String::class.java,
+            Int::class.java,
+            String::class.java,
+            Boolean::class.java,
+        ).apply {
+            isAccessible = true
+        }
     private val handshakeSecret = "secret"
     private lateinit var mockedDatagramChannel: DatagramChannel
 
@@ -35,13 +36,13 @@ class ToyVpnServiceHandshakeTest {
         serverAddress: String = "1.2.3.4",
         serverPort: Int = 8000,
         secret: String = handshakeSecret,
-        protectTunnel: Boolean = false
+        protectTunnel: Boolean = false,
     ): Pair<DatagramChannel, VpnSettings> {
         val parameters = arrayOf<Any>(serverAddress, serverPort, secret, protectTunnel)
         try {
             return handshakeMethod.invoke(
                 vpnService,
-                *parameters
+                *parameters,
             ) as Pair<DatagramChannel, VpnSettings>
         } catch (ex: InvocationTargetException) {
             throw ex.cause!!
@@ -80,9 +81,10 @@ class ToyVpnServiceHandshakeTest {
 
     @Test
     fun testCannotProtectTunnel() {
-        val ex = assertThrows(IllegalStateException::class.java) {
-            callHandshake(protectTunnel = true)
-        }
+        val ex =
+            assertThrows(IllegalStateException::class.java) {
+                callHandshake(protectTunnel = true)
+            }
 
         assertEquals("Cannot protect the tunnel", ex.message)
     }
@@ -91,9 +93,10 @@ class ToyVpnServiceHandshakeTest {
     fun testFailWritingToTunnel() {
         every { mockedDatagramChannel.write(any<ByteBuffer>()) } returns 0
 
-        val exception = assertThrows(IllegalStateException::class.java) {
-            callHandshake()
-        }
+        val exception =
+            assertThrows(IllegalStateException::class.java) {
+                callHandshake()
+            }
         assertEquals("Failed to send control packet to tunnel", exception.message)
     }
 
@@ -101,9 +104,10 @@ class ToyVpnServiceHandshakeTest {
     fun testTunnelDoesNotRespond() {
         every { mockedDatagramChannel.write(any<ByteBuffer>()) } returns handshakeSecret.length + 1
 
-        val exception = assertThrows(IllegalStateException::class.java) {
-            callHandshake()
-        }
+        val exception =
+            assertThrows(IllegalStateException::class.java) {
+                callHandshake()
+            }
         assertEquals("Cannot complete handshake with the server", exception.message)
     }
 
@@ -116,9 +120,10 @@ class ToyVpnServiceHandshakeTest {
             5
         }
 
-        val exception = assertThrows(IllegalStateException::class.java) {
-            callHandshake()
-        }
+        val exception =
+            assertThrows(IllegalStateException::class.java) {
+                callHandshake()
+            }
         assertEquals("Cannot parse the handshake response from the server", exception.message)
     }
 
@@ -130,9 +135,10 @@ class ToyVpnServiceHandshakeTest {
             12
         }
 
-        val exception = assertThrows(IllegalStateException::class.java) {
-            callHandshake()
-        }
+        val exception =
+            assertThrows(IllegalStateException::class.java) {
+                callHandshake()
+            }
         assertEquals("Cannot complete handshake with the server", exception.message)
     }
 }
