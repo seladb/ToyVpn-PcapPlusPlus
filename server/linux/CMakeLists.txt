@@ -3,8 +3,8 @@ project(ToyVpnServer)
 
 set(CMAKE_CXX_STANDARD 17)
 
-set(PCAPPLUSPLUS_INCLUDE_DIR "${CMAKE_SOURCE_DIR}/libs/PcapPlusPlus/include")
-set(PCAPPLUSPLUS_LIB_DIR "${CMAKE_SOURCE_DIR}/libs/PcapPlusPlus/lib")
+set(PCAPPLUSPLUS_INCLUDE_DIR "${CMAKE_SOURCE_DIR}/libs/pcapplusplus/include")
+set(PCAPPLUSPLUS_LIB_DIR "${CMAKE_SOURCE_DIR}/libs/pcapplusplus/lib")
 
 # Create the executable target first
 add_executable(ToyVpnServer

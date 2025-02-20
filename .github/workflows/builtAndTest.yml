@@ -99,7 +99,7 @@ jobs:
             echo "Error: No directory matching 'pcapplusplus*' found."
             exit 1
           fi
-          echo $RELEASE_DIR
+          echo Release dir: $RELEASE_DIR
           mv $RELEASE_DIR $GITHUB_WORKSPACE/server/linux/libs/pcapplusplus
 
       - name: Build VPN server
