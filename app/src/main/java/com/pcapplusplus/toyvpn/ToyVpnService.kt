@@ -187,8 +187,7 @@ class ToyVpnService : VpnService() {
 //                        Log.w(LOG_TAG, "Captured packet from tunnel of length: $length")
                     processPacket(packet.array())
                     outputStream.write(packet.array(), 0, length)
-                }
-                else if (length > 1) {
+                } else if (length > 1) {
                     val controlMessage = String(packet.array(), 1, length - 1, US_ASCII)
                     if (controlMessage == DISCONNECT_MESSAGE) {
                         stopSelfOnError("Server disconnected")
@@ -328,7 +327,7 @@ class ToyVpnService : VpnService() {
         }
     }
 
-   private fun stopSelfOnError(
+    private fun stopSelfOnError(
         errorMessage: String,
         exception: java.lang.Exception? = null,
     ) {
