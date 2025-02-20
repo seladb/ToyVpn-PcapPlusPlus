@@ -66,3 +66,32 @@ jobs:
           api-level: ${{ matrix.api-level }}
           arch: x86_64
           script: ./gradlew -is connectedCheck
+
+  build-server:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          submodules: true
+
+      - name: Download PcapPlusPlus
+        uses: robinraju/release-downloader@v1
+        with:
+          repository: "seladb/PcapPlusPlus"
+          tag: "v${{env.PCAPPLUSPLUS_LATEST_VERSION}}"
+          fileName: "pcapplusplus-${{env.PCAPPLUSPLUS_LATEST_VERSION}}-ubuntu-$(lsb_release -r -s)-gcc-*.tar.gz"
+          out-file-path: "server/linux/libs"
+          tarBall: true
+          extract: true
+
+      - name: Rename PcapPlusPlus directory
+        run: |
+          export RELEASE_DIR=$(find "$GITHUB_WORKSPACE/server/linux/libs" -maxdepth 1 -type d -name 'pcapplusplus*' | head -n 1)
+          mv $RELEASE_DIR $GITHUB_WORKSPACE/server/linux/libs/pcapplusplus
+
+      - name: Build VPN server
+        run: |
+          cmake -S . -B build
+          cmake --build build
