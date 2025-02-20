@@ -76,12 +76,18 @@ jobs:
         with:
           submodules: true
 
+      - name: Get Distribution Version
+        id: distro_version
+        run: |
+          DISTRO_VERSION=$(lsb_release -r -s)
+          echo "DISTRO_VERSION=$DISTRO_VERSION" >> $GITHUB_ENV
+
       - name: Download PcapPlusPlus
         uses: robinraju/release-downloader@v1
         with:
           repository: "seladb/PcapPlusPlus"
           tag: "v${{env.PCAPPLUSPLUS_LATEST_VERSION}}"
-          fileName: "pcapplusplus-${{env.PCAPPLUSPLUS_LATEST_VERSION}}-ubuntu-$(lsb_release -r -s)-gcc-*.tar.gz"
+          fileName: "pcapplusplus-${{env.PCAPPLUSPLUS_LATEST_VERSION}}-ubuntu-${{env.DISTRO_VERSION}}-gcc-*.tar.gz"
           out-file-path: "server/linux/libs"
           tarBall: true
           extract: true
