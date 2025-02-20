@@ -99,5 +99,6 @@ jobs:
 
       - name: Build VPN server
         run: |
+          cd server/linux
           cmake -S . -B build
           cmake --build build
