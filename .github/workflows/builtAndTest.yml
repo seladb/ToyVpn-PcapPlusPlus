@@ -102,6 +102,10 @@ jobs:
           echo Release dir: $RELEASE_DIR
           mv $RELEASE_DIR $GITHUB_WORKSPACE/server/linux/libs/pcapplusplus
 
+      - name: Install dependencies
+        run: |
+          sudo apt update && sudo apt -y install libpcap-dev
+
       - name: Build VPN server
         run: |
           cd server/linux
