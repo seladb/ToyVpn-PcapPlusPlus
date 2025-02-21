@@ -150,7 +150,11 @@ class ToyVpnService : VpnService() {
             LOG_TAG,
             "vpnInterface: $vpnInterface, ${vpnInterface?.fileDescriptor}",
         )
-        sendBroadcast(Intent(BroadcastActions.VPN_SERVICE_STARTED))
+        val intent =
+            Intent(BroadcastActions.VPN_SERVICE_STARTED).apply {
+                putExtra("clientAddress", vpnSettings.clientAddress)
+            }
+        sendBroadcast(intent)
         Log.w(LOG_TAG, "broadcast ${BroadcastActions.VPN_SERVICE_STARTED}")
         return handshakeResponse.first
     }

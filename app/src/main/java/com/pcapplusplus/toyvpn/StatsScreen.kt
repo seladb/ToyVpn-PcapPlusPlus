@@ -61,6 +61,7 @@ fun StatsScreen(
     viewModel: ToyVpnViewModel,
 ) {
     val vpnConnectionState by viewModel.vpnConnectionState.observeAsState(VpnConnectionState.CONNECTED)
+    val clientAddress by viewModel.clientAddress.observeAsState()
     val packetCount by viewModel.packetCount.observeAsState(0)
     val ipv4PacketCount by viewModel.ipv4PacketCount.observeAsState(0)
     val ipv6PacketCount by viewModel.ipv6PacketCount.observeAsState(0)
@@ -106,6 +107,13 @@ fun StatsScreen(
                     .align(Alignment.CenterHorizontally)
                     .padding(bottom = 16.dp),
         )
+
+        StatsCard(
+            label = "IP Address",
+            value = clientAddress ?: "",
+        )
+
+        Spacer(modifier = Modifier.height(16.dp))
 
         StatsCard(
             label = "Total Packets",

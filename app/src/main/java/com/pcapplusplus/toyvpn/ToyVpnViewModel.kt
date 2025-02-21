@@ -15,6 +15,7 @@ class ToyVpnViewModel(private val vpnServiceManager: ToyVpnServiceManager) :
     ViewModel(),
     PacketDataHandler {
     private val _vpnConnectionState = MutableLiveData(VpnConnectionState.DISCONNECTED)
+    private val _clientAddress = MutableLiveData<String?>(null)
     private val _vpnConnectionError = MutableLiveData<String?>(null)
     private val _packetCount = MutableLiveData(0)
     private val _ipv4PacketCount = MutableLiveData(0)
@@ -36,6 +37,7 @@ class ToyVpnViewModel(private val vpnServiceManager: ToyVpnServiceManager) :
         DomainTracker(timeWindowMillis = TOP_TLS_SERVER_NAMES_TIME_WINDOW_MSEC)
 
     val vpnConnectionState: LiveData<VpnConnectionState> get() = _vpnConnectionState
+    val clientAddress: LiveData<String?> get() = _clientAddress
     val vpnConnectionError: LiveData<String?> get() = _vpnConnectionError
     val packetCount: LiveData<Int> get() = _packetCount
     val ipv4PacketCount: LiveData<Int> get() = _ipv4PacketCount
@@ -60,6 +62,12 @@ class ToyVpnViewModel(private val vpnServiceManager: ToyVpnServiceManager) :
             vpnServiceManager.vpnConnectionError.collect { errorMessage ->
                 _vpnConnectionError.value = errorMessage
                 Log.w("ToyVpnViewModel", "Got error message: $errorMessage")
+            }
+        }
+        viewModelScope.launch {
+            vpnServiceManager.clientAddress.collect { clientAddress ->
+                _clientAddress.value = clientAddress
+                Log.w("ToyVpnViewModel", "Client address: $clientAddress")
             }
         }
         vpnServiceManager.registerPacketDataHandler(this)

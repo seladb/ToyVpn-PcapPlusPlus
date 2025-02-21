@@ -41,10 +41,12 @@ class ToyVpnServiceManager(
     private val vpnServiceProxy: VpnServiceProxy = DefaultVpnServiceProxy(context),
 ) {
     private val _vpnServiceState = MutableStateFlow(VpnConnectionState.DISCONNECTED)
+    private val _clientAddress = MutableStateFlow<String?>(null)
     private val _vpnConnectionError = MutableStateFlow<String?>(null)
     private val packetDataHandlers: MutableList<PacketDataHandler> = mutableListOf()
 
     val vpnServiceState: StateFlow<VpnConnectionState> get() = _vpnServiceState
+    val clientAddress: StateFlow<String?> get() = _clientAddress
     val vpnConnectionError: StateFlow<String?> get() = _vpnConnectionError
 
     private val vpnStateReceiver =
@@ -56,10 +58,12 @@ class ToyVpnServiceManager(
                 when (intent?.action) {
                     BroadcastActions.VPN_SERVICE_STARTED -> {
                         _vpnServiceState.value = VpnConnectionState.CONNECTED
+                        _clientAddress.value = intent.getStringExtra("clientAddress")
                     }
 
                     BroadcastActions.VPN_SERVICE_STOPPED -> {
                         _vpnServiceState.value = VpnConnectionState.DISCONNECTED
+                        _clientAddress.value = null
                     }
 
                     BroadcastActions.VPN_SERVICE_PACKET_ARRIVED -> {
@@ -80,6 +84,7 @@ class ToyVpnServiceManager(
 
                     BroadcastActions.VPN_SERVICE_ERROR -> {
                         _vpnServiceState.value = VpnConnectionState.DISCONNECTED
+                        _clientAddress.value = null
                         _vpnConnectionError.value = intent.getStringExtra("errorMessage")
                     }
                 }
