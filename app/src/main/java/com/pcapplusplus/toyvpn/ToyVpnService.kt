@@ -18,6 +18,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import java.io.FileInputStream
 import java.io.FileOutputStream
 import java.io.IOException
@@ -29,7 +30,9 @@ import java.util.concurrent.atomic.AtomicBoolean
 
 class ToyVpnService : VpnService() {
     private var vpnInterface: ParcelFileDescriptor? = null
-    private var vpnConnected: AtomicBoolean = AtomicBoolean(false)
+    private lateinit var vpnTunnel: DatagramChannel
+    private var vpnConnected = AtomicBoolean(false)
+    private var isForwardingTraffic = AtomicBoolean(false)
     private val packetProcessor = PacketProcessor()
     private val packetDataList: MutableList<PacketData> = mutableListOf()
     private var lastPacketDataSentTimestamp: Long = 0
@@ -46,6 +49,7 @@ class ToyVpnService : VpnService() {
         const val MAX_HANDSHAKE_ATTEMPTS = 50
         const val MAX_PACKET_SIZE = 32767
         const val MAX_SECRET_LENGTH = 1024
+        const val DISCONNECT_MESSAGE = "DISCONNECT"
     }
 
     @SuppressLint("SyntheticAccessor")
@@ -71,7 +75,7 @@ class ToyVpnService : VpnService() {
             registerReceiver(
                 broadcastReceiver,
                 IntentFilter(BroadcastActions.VPN_SERVICE_STOP),
-                Context.RECEIVER_EXPORTED,
+                RECEIVER_EXPORTED,
             )
         } else {
             registerReceiver(broadcastReceiver, IntentFilter(BroadcastActions.VPN_SERVICE_STOP))
@@ -99,14 +103,17 @@ class ToyVpnService : VpnService() {
                         }
                     }
 
-                val vpnTunnel = establishVpnResult.await() ?: return@launch
+                vpnTunnel = establishVpnResult.await() ?: return@launch
 
                 try {
+                    isForwardingTraffic.set(true)
                     val inputSteam = FileInputStream(vpnInterface?.fileDescriptor)
                     val outputStream = FileOutputStream(vpnInterface?.fileDescriptor)
                     forwardTraffic(inputSteam, outputStream, vpnTunnel)
                 } catch (e: Exception) {
                     stopSelfOnError("Error while forwarding traffic to the VPN server", e)
+                } finally {
+                    isForwardingTraffic.set(false)
                 }
             }
         } catch (e: IllegalArgumentException) {
@@ -180,6 +187,11 @@ class ToyVpnService : VpnService() {
 //                        Log.w(LOG_TAG, "Captured packet from tunnel of length: $length")
                     processPacket(packet.array())
                     outputStream.write(packet.array(), 0, length)
+                } else if (length > 1) {
+                    val controlMessage = String(packet.array(), 1, length - 1, US_ASCII)
+                    if (controlMessage == DISCONNECT_MESSAGE) {
+                        stopSelfOnError("Server disconnected")
+                    }
                 }
 
                 idle = false
@@ -289,8 +301,27 @@ class ToyVpnService : VpnService() {
     private fun disconnectVpn() {
         try {
             vpnConnected.set(false)
-            vpnInterface?.close()
-            vpnInterface = null
+
+            runBlocking {
+                vpnServiceScope.async {
+                    while (isForwardingTraffic.get()) {
+                        Thread.sleep(100)
+                    }
+
+                    if (::vpnTunnel.isInitialized) {
+                        val packet = ByteBuffer.allocate(DISCONNECT_MESSAGE.length + 1)
+                        val disconnectAsByteArray = byteArrayOf(0) + DISCONNECT_MESSAGE.encodeToByteArray()
+                        packet.put(disconnectAsByteArray).flip()
+
+                        if (vpnTunnel.write(packet) != disconnectAsByteArray.size) {
+                            Log.e(LOG_TAG, "Couldn't send disconnect message to the server")
+                        }
+                        vpnTunnel.close()
+                        vpnInterface?.close()
+                        vpnInterface = null
+                    }
+                }.await()
+            }
         } catch (e: IOException) {
             e.printStackTrace()
         }
@@ -298,9 +329,11 @@ class ToyVpnService : VpnService() {
 
     private fun stopSelfOnError(
         errorMessage: String,
-        exception: java.lang.Exception,
+        exception: java.lang.Exception? = null,
     ) {
-        Log.e(LOG_TAG, errorMessage, exception)
+        if (exception != null) {
+            Log.e(LOG_TAG, errorMessage, exception)
+        }
 
         val intent =
             Intent(BroadcastActions.VPN_SERVICE_ERROR).apply {

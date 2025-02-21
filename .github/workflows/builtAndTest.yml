@@ -66,3 +66,48 @@ jobs:
           api-level: ${{ matrix.api-level }}
           arch: x86_64
           script: ./gradlew -is connectedCheck
+
+  build-server:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          submodules: true
+
+      - name: Get Distribution Version
+        id: distro_version
+        run: |
+          DISTRO_VERSION=$(lsb_release -r -s)
+          echo "DISTRO_VERSION=$DISTRO_VERSION" >> $GITHUB_ENV
+
+      - name: Download PcapPlusPlus
+        uses: robinraju/release-downloader@v1
+        with:
+          repository: "seladb/PcapPlusPlus"
+          tag: "v${{env.PCAPPLUSPLUS_LATEST_VERSION}}"
+          fileName: "pcapplusplus-${{env.PCAPPLUSPLUS_LATEST_VERSION}}-ubuntu-${{env.DISTRO_VERSION}}-gcc-*.tar.gz"
+          out-file-path: "server/linux/libs"
+          tarBall: true
+          extract: true
+
+      - name: Rename PcapPlusPlus directory
+        run: |
+          export RELEASE_DIR=$(find "$GITHUB_WORKSPACE/server/linux/libs" -maxdepth 1 -type d -name 'pcapplusplus*' | head -n 1)
+          if [ -z "$RELEASE_DIR" ]; then
+            echo "Error: No directory matching 'pcapplusplus*' found."
+            exit 1
+          fi
+          echo Release dir: $RELEASE_DIR
+          mv $RELEASE_DIR $GITHUB_WORKSPACE/server/linux/libs/pcapplusplus
+
+      - name: Install dependencies
+        run: |
+          sudo apt update && sudo apt -y install libpcap-dev
+
+      - name: Build VPN server
+        run: |
+          cd server/linux
+          cmake -S . -B build
+          cmake --build build
