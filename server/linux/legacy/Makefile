@@ -15,4 +15,4 @@
 #
 
 all:
-	g++ -Wall -o ToyVpnServer ToyVpnServerLegacy.cpp
+	g++ -Wall -o ToyVpnServer ToyVpnServer.cpp
