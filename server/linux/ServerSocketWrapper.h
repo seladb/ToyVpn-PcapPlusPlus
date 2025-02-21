@@ -3,6 +3,7 @@
 #include "Log.h"
 #include <iostream>
 #include <netinet/in.h>
+#include <unistd.h>
 #include <vector>
 
 class ServerSocketWrapper {
