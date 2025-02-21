@@ -1,7 +1,7 @@
 #pragma once
 
-#include <optional>
 #include "libs/pcapplusplus/include/pcapplusplus/IpAddress.h"
+#include <optional>
 
 struct VpnSettings {
     pcpp::IPv4Address clientAddress;
@@ -12,10 +12,10 @@ struct VpnSettings {
 
     std::string toParamString() const {
         std::ostringstream params;
-        params
-            << "a," << clientAddress.toString() << ",32 "
-            << "r," << routeAddress.getNetworkPrefix().toString() << "," << static_cast<int>(routeAddress.getPrefixLen()) << " "
-            << "m," << mtu;
+        params << "a," << clientAddress.toString() << ",32 "
+               << "r," << routeAddress.getNetworkPrefix().toString() << ","
+               << static_cast<int>(routeAddress.getPrefixLen()) << " "
+               << "m," << mtu;
 
         if (dnsServer) {
             params << " d," << dnsServer.value().toString();

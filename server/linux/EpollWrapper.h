@@ -1,12 +1,12 @@
 #pragma once
 
 #include <functional>
-#include <unistd.h>
 #include <sys/epoll.h>
+#include <unistd.h>
 #include <unordered_map>
 
 class EPollWrapper {
-public:
+  public:
     using EPollCallback = std::function<void(int)>;
 
     virtual ~EPollWrapper() {
@@ -24,9 +24,10 @@ public:
         m_MaxEvents = maxEvents;
     }
 
-    void add(int fd, const EPollCallback& callback) {
+    void add(int fd, const EPollCallback &callback) {
         if (m_EPollFd == -1) {
-            throw std::runtime_error("Instance not initialized, please call init()!");
+            throw std::runtime_error(
+                "Instance not initialized, please call init()!");
         }
 
         struct epoll_event event;
@@ -39,9 +40,7 @@ public:
         m_FdToCallbackMap[event.data.fd] = callback;
     }
 
-    void remove(int fd) {
-        m_FdToCallbackMap.erase(fd);
-    }
+    void remove(int fd) { m_FdToCallbackMap.erase(fd); }
 
     void startPolling() {
         if (m_IsPolling) {
@@ -73,10 +72,9 @@ public:
         close(m_EPollFd);
     }
 
-private:
+  private:
     int m_EPollFd = -1;
     int m_MaxEvents = -1;
     std::unordered_map<int, EPollCallback> m_FdToCallbackMap;
     bool m_IsPolling = false;
 };
-

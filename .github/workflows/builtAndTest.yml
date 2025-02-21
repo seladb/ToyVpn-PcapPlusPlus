@@ -9,7 +9,7 @@ env:
   PCAPPLUSPLUS_LATEST_VERSION: 24.09
 
 jobs:
-  build-and-test:
+  build-and-test-client:
     strategy:
       matrix:
         api-level: [30, 35]
@@ -111,3 +111,18 @@ jobs:
           cd server/linux
           cmake -S . -B build
           cmake --build build
+
+  cpp-lint-format:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          submodules: true
+
+      - name: Run clang-format
+        uses: jidicula/clang-format-action@v4.14.0
+        with:
+          clang-format-version: "19"
+          exclude-regex: "(^|/)(app/libs|server/linux/libs)/"

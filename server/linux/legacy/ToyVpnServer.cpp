@@ -14,19 +14,19 @@
  * limitations under the License.
  */
 
+#include <arpa/inet.h>
+#include <errno.h>
+#include <fcntl.h>
+#include <iomanip>
+#include <netinet/in.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <unistd.h>
-#include <arpa/inet.h>
-#include <netinet/in.h>
 #include <sys/ioctl.h>
 #include <sys/socket.h>
 #include <sys/stat.h>
 #include <sys/types.h>
-#include <errno.h>
-#include <fcntl.h>
-#include <iomanip>
+#include <unistd.h>
 
 #ifdef __linux__
 
@@ -56,24 +56,24 @@
 // program is designed for demonstration purpose, it performs neither strong
 // authentication nor encryption. DO NOT USE IT IN PRODUCTION!
 
-#include <net/if.h>
-#include <linux/if_tun.h>
-#include <iostream>
-#include <cstring>
 #include <arpa/inet.h>
+#include <cstring>
+#include <iostream>
+#include <linux/if_tun.h>
+#include <net/if.h>
 
 // IP Header Structure (IPv4)
 struct ip_header {
-    unsigned char  iph_ihl:4, iph_ver:4;     // IP Header length and Version
-    unsigned char  iph_tos;                  // Type of service
-    unsigned short iph_len;                  // Total length
-    unsigned short iph_id;                   // Identification
-    unsigned short iph_offset;               // Fragment offset field
-    unsigned char  iph_ttl;                  // Time to live
-    unsigned char  iph_protocol;             // Protocol type
-    unsigned short iph_checksum;             // IP checksum
-    unsigned int   iph_saddr;                // Source address
-    unsigned int   iph_daddr;                // Destination address
+    unsigned char iph_ihl : 4, iph_ver : 4; // IP Header length and Version
+    unsigned char iph_tos;                  // Type of service
+    unsigned short iph_len;                 // Total length
+    unsigned short iph_id;                  // Identification
+    unsigned short iph_offset;              // Fragment offset field
+    unsigned char iph_ttl;                  // Time to live
+    unsigned char iph_protocol;             // Protocol type
+    unsigned short iph_checksum;            // IP checksum
+    unsigned int iph_saddr;                 // Source address
+    unsigned int iph_daddr;                 // Destination address
 };
 
 // IP Header size
@@ -85,7 +85,8 @@ void print_hex(const char *data, size_t length) {
     // Iterate over each byte in the packet
     for (size_t i = 0; i < length; ++i) {
         // Print each byte in hex format
-        std::cout << std::setw(2) << std::setfill('0') << std::hex << (0xFF & data[i]) << " ";
+        std::cout << std::setw(2) << std::setfill('0') << std::hex
+                  << (0xFF & data[i]) << " ";
 
         // Print a newline after every 16 bytes for better readability
         if ((i + 1) % 16 == 0) {
@@ -97,7 +98,8 @@ void print_hex(const char *data, size_t length) {
 }
 
 void parse_packet(const char *packet) {
-    struct ip_header *ip = (struct ip_header*) packet; // Cast the packet to the IP header structure
+    struct ip_header *ip = (struct ip_header *)
+        packet; // Cast the packet to the IP header structure
 
     // Extract the source and destination IP addresses
     struct in_addr src_addr, dest_addr;
@@ -112,8 +114,10 @@ void parse_packet(const char *packet) {
     // Print basic information about the IP packet
     std::cout << "IP Header:\n";
     std::cout << "  Version: " << (unsigned int)ip->iph_ver << std::endl;
-    std::cout << "  Header Length: " << (unsigned int)ip->iph_ihl * 4 << " bytes" << std::endl;
-    std::cout << "  Total Length: " << ntohs(ip->iph_len) << " bytes" << std::endl;
+    std::cout << "  Header Length: " << (unsigned int)ip->iph_ihl * 4
+              << " bytes" << std::endl;
+    std::cout << "  Total Length: " << ntohs(ip->iph_len) << " bytes"
+              << std::endl;
     std::cout << "  Protocol: " << (unsigned int)ip->iph_protocol << std::endl;
     std::cout << "  Source IP: " << src_ip << std::endl;
     std::cout << "  Destination IP: " << dest_ip << std::endl;
@@ -122,10 +126,10 @@ void parse_packet(const char *packet) {
     unsigned short protocol = ip->iph_protocol;
 
     // Parse based on protocol type
-    if (protocol == 6) {  // TCP (Protocol 6)
+    if (protocol == 6) { // TCP (Protocol 6)
         std::cout << "  Protocol: TCP\n";
         // You can parse the TCP header here
-    } else if (protocol == 17) {  // UDP (Protocol 17)
+    } else if (protocol == 17) { // UDP (Protocol 17)
         std::cout << "  Protocol: UDP\n";
         // You can parse the UDP header here
     } else {
@@ -133,9 +137,7 @@ void parse_packet(const char *packet) {
     }
 }
 
-
-static int get_interface(char *name)
-{
+static int get_interface(char *name) {
     int interface = open("/dev/net/tun", O_RDWR | O_NONBLOCK);
 
     ifreq ifr;
@@ -157,8 +159,7 @@ static int get_interface(char *name)
 
 #endif
 
-static int get_tunnel(char *port, char *secret)
-{
+static int get_tunnel(char *port, char *secret) {
     printf("DEBUG: starting get_tunnel\n");
     // We use an IPv6 socket to cover both IPv4 and IPv6.
     int tunnel = socket(AF_INET6, SOCK_DGRAM, 0);
@@ -191,8 +192,8 @@ static int get_tunnel(char *port, char *secret)
     do {
         addrlen = sizeof(addr);
         printf("DEBUG: before recvfrom\n");
-        int n = recvfrom(tunnel, packet, sizeof(packet), 0,
-                (sockaddr *)&addr, &addrlen);
+        int n = recvfrom(tunnel, packet, sizeof(packet), 0, (sockaddr *)&addr,
+                         &addrlen);
         printf("DEBUG: after recvfrom\n");
         if (n <= 0) {
             return -1;
@@ -207,8 +208,8 @@ static int get_tunnel(char *port, char *secret)
     return tunnel;
 }
 
-static void build_parameters(char *parameters, int size, int argc, char **argv)
-{
+static void build_parameters(char *parameters, int size, int argc,
+                             char **argv) {
     // Well, for simplicity, we just concatenate them (almost) blindly.
     int offset = 0;
     for (int i = 4; i < argc; ++i) {
@@ -244,8 +245,7 @@ static void build_parameters(char *parameters, int size, int argc, char **argv)
 
 //-----------------------------------------------------------------------------
 
-int main(int argc, char **argv)
-{
+int main(int argc, char **argv) {
     if (argc < 5) {
         printf("Usage: %s <tunN> <port> <secret> options...\n"
                "\n"
@@ -258,7 +258,8 @@ int main(int argc, char **argv)
                "\n"
                "Note that TUN interface needs to be configured properly\n"
                "BEFORE running this program. For more information, please\n"
-               "read the comments in the source code.\n\n", argv[0]);
+               "read the comments in the source code.\n\n",
+               argv[0]);
         exit(1);
     }
 
@@ -307,7 +308,8 @@ int main(int argc, char **argv)
             // Read the outgoing packet from the input stream.
             int length = read(interface, packet, sizeof(packet));
             if (length > 0) {
-                printf("DEBUG: read a packet from interface of length %d\n", length);
+                printf("DEBUG: read a packet from interface of length %d\n",
+                       length);
                 print_hex(packet, length);
                 parse_packet(packet);
 
@@ -331,7 +333,8 @@ int main(int argc, char **argv)
             if (length > 0) {
                 // Ignore control messages, which start with zero.
                 if (packet[0] != 0) {
-                    printf("DEBUG: read a packet from tunnel of length %d\n", length);
+                    printf("DEBUG: read a packet from tunnel of length %d\n",
+                           length);
                     // Write the incoming packet to the output stream.
                     write(interface, packet, length);
                 }

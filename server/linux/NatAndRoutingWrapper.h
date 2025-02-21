@@ -1,18 +1,20 @@
 #pragma once
 
-#include <ostream>
-#include "libs/pcapplusplus/include/pcapplusplus/IpAddress.h"
 #include "Log.h"
+#include "libs/pcapplusplus/include/pcapplusplus/IpAddress.h"
+#include <ostream>
 
 class NatAndRoutingWrapper {
-public:
+  public:
     virtual ~NatAndRoutingWrapper() {
         if (m_IsInitialized) {
             configureNat(false);
         }
     }
 
-    void init(const std::string& publicNetworkInterface, const std::string& tunInterfaceName, const pcpp::IPv4Network& privateNetwork) {
+    void init(const std::string &publicNetworkInterface,
+              const std::string &tunInterfaceName,
+              const pcpp::IPv4Network &privateNetwork) {
         m_PublicNetworkInterface = publicNetworkInterface;
         m_PrivateNetwork = privateNetwork;
         m_TunInterfaceName = tunInterfaceName;
@@ -21,7 +23,7 @@ public:
         m_IsInitialized = true;
     }
 
-private:
+  private:
     std::string m_PublicNetworkInterface;
     std::string m_TunInterfaceName;
     pcpp::IPv4Network m_PrivateNetwork = std::string("0.0.0.0/0");
@@ -31,39 +33,35 @@ private:
         auto enableFlag = enable ? "-A" : "-D";
 
         std::ostringstream iptablesCommand;
-        iptablesCommand
-                << "iptables -t nat "
-                << enableFlag
-                << " POSTROUTING -s "
-                << m_PrivateNetwork.toString()
-                << " -o "
-                << m_PublicNetworkInterface
-                << " -j MASQUERADE";
+        iptablesCommand << "iptables -t nat " << enableFlag
+                        << " POSTROUTING -s " << m_PrivateNetwork.toString()
+                        << " -o " << m_PublicNetworkInterface
+                        << " -j MASQUERADE";
 
         int result = std::system(iptablesCommand.str().c_str());
         if (result != 0) {
-            throw std::runtime_error("Couldn't configure NAT: '" + iptablesCommand.str() + "'");
+            throw std::runtime_error("Couldn't configure NAT: '" +
+                                     iptablesCommand.str() + "'");
         }
 
         if (enable) {
-            TOYVPN_LOG_DEBUG("Configuring NAT: '" << iptablesCommand.str() << "'");
-        }
-        else {
-            TOYVPN_LOG_DEBUG("Disabling NAT: '" << iptablesCommand.str() << "'");
+            TOYVPN_LOG_DEBUG("Configuring NAT: '" << iptablesCommand.str()
+                                                  << "'");
+        } else {
+            TOYVPN_LOG_DEBUG("Disabling NAT: '" << iptablesCommand.str()
+                                                << "'");
         }
     }
 
     void configureRouting() {
         std::ostringstream ipRouteCommand;
-        ipRouteCommand
-                << "ip route add "
-                << m_PrivateNetwork.toString()
-                << " dev "
-                << m_TunInterfaceName;
+        ipRouteCommand << "ip route add " << m_PrivateNetwork.toString()
+                       << " dev " << m_TunInterfaceName;
 
         auto result = std::system(ipRouteCommand.str().c_str());
         if (result != 0) {
-            throw std::runtime_error("Couldn't configure roting: '" + ipRouteCommand.str() + "'");
+            throw std::runtime_error("Couldn't configure roting: '" +
+                                     ipRouteCommand.str() + "'");
         }
     }
 };
