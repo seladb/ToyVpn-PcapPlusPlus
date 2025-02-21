@@ -22,6 +22,7 @@ import org.junit.runner.RunWith
 class ToyVpnViewModelTest {
     private val mockVpnServiceManager = mockk<ToyVpnServiceManager>(relaxed = true)
     private var vpnConnectionState = MutableStateFlow(VpnConnectionState.DISCONNECTED)
+    private var clientAddress = MutableStateFlow<String?>(null)
     private var vpnConnectionError = MutableStateFlow<String?>(null)
     private lateinit var viewModel: ToyVpnViewModel
 
@@ -31,6 +32,7 @@ class ToyVpnViewModelTest {
     @Before
     fun setup() {
         every { mockVpnServiceManager.vpnServiceState } returns vpnConnectionState.asStateFlow()
+        every { mockVpnServiceManager.clientAddress } returns clientAddress.asStateFlow()
         every { mockVpnServiceManager.vpnConnectionError } returns vpnConnectionError.asStateFlow()
         viewModel = ToyVpnViewModel(mockVpnServiceManager)
     }
@@ -40,6 +42,8 @@ class ToyVpnViewModelTest {
         viewModel.onPacketDataArrives(arrayListOf(PacketData(isIPv4 = true, length = 10)))
         assertEquals(1, viewModel.ipv4PacketCount.value)
 
+        val mockClientAddress = "10.0.0.1"
+        clientAddress.value = mockClientAddress
         val serverAddress = "12.13.14.15"
         val serverPort = 8001
         val secret = "secret"
@@ -213,5 +217,14 @@ class ToyVpnViewModelTest {
 
             vpnConnectionError.value = "Some error"
             waitFor { viewModel.vpnConnectionError.value == "Some error" }
+        }
+
+    @Test
+    fun testClientAddress() =
+        runTest {
+            assertNull(viewModel.clientAddress.value)
+
+            clientAddress.value = "10.0.0.1"
+            waitFor { viewModel.clientAddress.value == "10.0.0.1" }
         }
 }

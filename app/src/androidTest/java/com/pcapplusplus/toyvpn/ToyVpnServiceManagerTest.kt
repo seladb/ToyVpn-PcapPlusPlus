@@ -128,8 +128,14 @@ class ToyVpnServiceManagerTest {
     @Test
     fun testReceiveVpnStartedAndStoppedEvent() =
         runTest {
-            context.sendBroadcast(Intent(BroadcastActions.VPN_SERVICE_STARTED))
+            val intent =
+                Intent(BroadcastActions.VPN_SERVICE_STARTED).apply {
+                    putExtra("clientAddress", "10.0.0.1")
+                }
+
+            context.sendBroadcast(intent)
             waitFor { serviceManager.vpnServiceState.value == VpnConnectionState.CONNECTED }
+            waitFor { serviceManager.clientAddress.value == "10.0.0.1" }
 
             context.sendBroadcast(Intent(BroadcastActions.VPN_SERVICE_STOPPED))
             waitFor { serviceManager.vpnServiceState.value == VpnConnectionState.DISCONNECTED }
