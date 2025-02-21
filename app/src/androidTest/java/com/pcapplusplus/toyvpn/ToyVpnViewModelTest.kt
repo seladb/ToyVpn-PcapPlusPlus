@@ -65,7 +65,7 @@ class ToyVpnViewModelTest {
     }
 
     @Test
-    fun testDisconnectVpn() {
+    fun testDisconnectVpn() = runTest {
         viewModel.onPacketDataArrives(arrayListOf(PacketData(isIPv4 = true, length = 10)))
         assertEquals(1, viewModel.ipv4PacketCount.value)
 
