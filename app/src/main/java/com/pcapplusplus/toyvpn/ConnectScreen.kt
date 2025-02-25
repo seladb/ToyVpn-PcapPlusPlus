@@ -64,14 +64,14 @@ fun ConnectScreen(
     fun validateIpv4Address(address: String): Boolean {
         val ipv4Pattern =
             Pattern.compile(
-                "^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$",
+                "^((25[0-5]|2[0-4][0-9]|1[0-9]{1,2}|0?[1-9][0-9]{0,2}|)\\.)((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){2}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$",
             )
         return ipv4Pattern.matcher(address).matches()
     }
 
     fun validatePort(port: String): Boolean {
         return port.toIntOrNull()?.let {
-            it in 0..65535
+            it in 1..65535
         } ?: false
     }
 
