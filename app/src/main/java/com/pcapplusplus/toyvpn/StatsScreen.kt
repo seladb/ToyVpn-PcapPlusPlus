@@ -37,6 +37,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
@@ -51,6 +52,7 @@ import com.pcapplusplus.toyvpn.model.VpnConnectionState
 
 data class TrafficStat(
     val label: String,
+    val testTag: String,
     val count: Int,
     val total: Int,
 )
@@ -69,8 +71,8 @@ fun StatsScreen(
     val udpPacketCount by viewModel.udpPacketCount.observeAsState(0)
     val dnsPacketCount by viewModel.dnsPacketCount.observeAsState(0)
     val tlsPacketCount by viewModel.tlsPacketCount.observeAsState(0)
-    val tcpConnections by viewModel.tcpConnectionCount.observeAsState(0)
-    val udpConnections by viewModel.udpConnectionCount.observeAsState(0)
+    val tcpConnectionCount by viewModel.tcpConnectionCount.observeAsState(0)
+    val udpConnectionCount by viewModel.udpConnectionCount.observeAsState(0)
     val topDnsDomains by viewModel.topDnsDomains.observeAsState()
     val topTlsServerNames by viewModel.topTlsServerNames.observeAsState()
 
@@ -126,12 +128,12 @@ fun StatsScreen(
             title = "Packet Count by Protocol",
             stats =
                 listOf(
-                    TrafficStat("IPv4", ipv4PacketCount, packetCount),
-                    TrafficStat("IPv6", ipv6PacketCount, packetCount),
-                    TrafficStat("TCP", tcpPacketCount, packetCount),
-                    TrafficStat("UDP", udpPacketCount, packetCount),
-                    TrafficStat("DNS", dnsPacketCount, packetCount),
-                    TrafficStat("TLS", tlsPacketCount, packetCount),
+                    TrafficStat("IPv4", "IPv4", ipv4PacketCount, packetCount),
+                    TrafficStat("IPv6", "IPv6", ipv6PacketCount, packetCount),
+                    TrafficStat("TCP", "TCP", tcpPacketCount, packetCount),
+                    TrafficStat("UDP", "UDP", udpPacketCount, packetCount),
+                    TrafficStat("DNS", "DNS", dnsPacketCount, packetCount),
+                    TrafficStat("TLS", "TLS", tlsPacketCount, packetCount),
                 ),
         )
 
@@ -141,8 +143,8 @@ fun StatsScreen(
             title = "Connections",
             stats =
                 listOf(
-                    TrafficStat("TCP", tcpConnections, tcpConnections + udpConnections),
-                    TrafficStat("UDP", udpConnections, tcpConnections + udpConnections),
+                    TrafficStat("TCP", "TCPConn", tcpConnectionCount, tcpConnectionCount + udpConnectionCount),
+                    TrafficStat("UDP", "UDPConn", udpConnectionCount, tcpConnectionCount + udpConnectionCount),
                 ),
         )
 
@@ -158,13 +160,13 @@ fun StatsScreen(
 
         Button(
             onClick = onDisconnectClicked,
-            enabled = vpnConnectionState != VpnConnectionState.DISCONNECTED,
+            enabled = vpnConnectionState !in listOf(VpnConnectionState.DISCONNECTED, VpnConnectionState.DISCONNECTING),
             modifier =
                 Modifier
                     .fillMaxWidth()
                     .height(60.dp),
         ) {
-            if (vpnConnectionState == VpnConnectionState.DISCONNECTED) {
+            if (vpnConnectionState == VpnConnectionState.DISCONNECTING) {
                 Text("Disconnecting...")
             } else {
                 Text("Disconnect")
@@ -229,14 +231,18 @@ fun TrafficStatRow(stat: TrafficStat) {
         Text(
             text = stat.label,
             style = MaterialTheme.typography.titleMedium.copy(fontSize = 20.sp),
-            modifier = Modifier.wrapContentWidth(Alignment.Start),
+            modifier = Modifier.wrapContentWidth(Alignment.Start).testTag("${stat.testTag}_label"),
         )
         Spacer(modifier = Modifier.width(8.dp))
-        ProgressBar(modifier = Modifier.weight(1f), count = stat.count, total = stat.total)
+        ProgressBar(
+            modifier = Modifier.weight(1f).testTag("${stat.testTag}_progress"),
+            count = stat.count,
+            total = if (stat.total != 0) stat.total else 1,
+        )
         Text(
             text = stat.count.toString(),
             style = MaterialTheme.typography.titleMedium.copy(fontSize = 20.sp),
-            modifier = Modifier.align(Alignment.CenterVertically),
+            modifier = Modifier.align(Alignment.CenterVertically).testTag("${stat.testTag}_count"),
             textAlign = TextAlign.End,
         )
     }
@@ -297,7 +303,7 @@ fun DomainRow(stat: DomainData) {
     ) {
         Icon(
             imageVector = Icons.Default.Language,
-            contentDescription = "DNS query",
+            contentDescription = "Domain",
             modifier = Modifier.size(24.dp),
             tint = MaterialTheme.colorScheme.primary,
         )
