@@ -101,6 +101,7 @@ class StatsScreenTest {
     fun testVpnConnected() {
         renderScreen()
 
+        composeTestRule.waitForIdle()
         composeTestRule.onNodeWithText("Disconnect").assertIsDisplayed().assertIsEnabled()
     }
 
@@ -148,6 +149,7 @@ class StatsScreenTest {
                 Triple("UDPConn", "UDP", udpConnectionCount),
             )
 
+        composeTestRule.waitForIdle()
         composeTestRule.onNodeWithText("Total Packets").assertIsDisplayed().onSibling().assertTextEquals(totalPacketCount.toString())
 
         expectedValues.forEach { (testTag, label, count) ->
@@ -194,6 +196,7 @@ class StatsScreenTest {
         renderScreen()
 
         composeTestRule.onNodeWithText("Disconnect").performClick()
+        composeTestRule.waitForIdle()
 
         verify { mockViewModel.disconnectVpn() }
     }
@@ -202,6 +205,7 @@ class StatsScreenTest {
     fun testVpnDisconnecting() {
         renderScreen(vpnConnectionState = VpnConnectionState.DISCONNECTING)
 
+        composeTestRule.waitForIdle()
         composeTestRule.onNodeWithText("Disconnecting...").assertIsDisplayed().assertIsNotEnabled()
     }
 
