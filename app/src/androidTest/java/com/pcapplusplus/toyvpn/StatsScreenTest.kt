@@ -2,6 +2,8 @@ package com.pcapplusplus.toyvpn
 
 import androidx.compose.material3.Text
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.assertIsEnabled
+import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.assertTextEquals
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
@@ -103,7 +105,7 @@ class StatsScreenTest {
 
         composeTestRule.waitUntil(timeoutMillis = 10000) {
             try {
-                composeTestRule.onNodeWithText("Disconnect").assertExists()
+                composeTestRule.onNodeWithText("Disconnect").assertIsDisplayed().assertIsEnabled()
                 true
             } catch (ex: AssertionError) {
                 false
@@ -155,12 +157,21 @@ class StatsScreenTest {
                 Triple("UDPConn", "UDP", udpConnectionCount),
             )
 
-        composeTestRule.onNodeWithText("Total Packets").assertIsDisplayed().onSibling().assertTextEquals(totalPacketCount.toString())
+        composeTestRule.waitUntil(timeoutMillis = 10000) {
+            try {
+                composeTestRule.onNodeWithText(
+                    "Total Packets",
+                ).assertIsDisplayed().onSibling().assertTextEquals(totalPacketCount.toString())
 
-        expectedValues.forEach { (testTag, label, count) ->
-            composeTestRule.onNodeWithTag("${testTag}_label").assertIsDisplayed().assertTextEquals(label)
-            composeTestRule.onNodeWithTag("${testTag}_count").assertIsDisplayed().assertTextEquals(count.toString())
-            composeTestRule.onNodeWithTag("${testTag}_progress").assertIsDisplayed()
+                expectedValues.forEach { (testTag, label, count) ->
+                    composeTestRule.onNodeWithTag("${testTag}_label").assertIsDisplayed().assertTextEquals(label)
+                    composeTestRule.onNodeWithTag("${testTag}_count").assertIsDisplayed().assertTextEquals(count.toString())
+                    composeTestRule.onNodeWithTag("${testTag}_progress").assertIsDisplayed()
+                }
+                true
+            } catch (ex: AssertionError) {
+                false
+            }
         }
     }
 
@@ -202,7 +213,14 @@ class StatsScreenTest {
 
         composeTestRule.onNodeWithText("Disconnect").performClick()
 
-        verify { mockViewModel.disconnectVpn() }
+        composeTestRule.waitUntil(timeoutMillis = 10000) {
+            try {
+                verify { mockViewModel.disconnectVpn() }
+                true
+            } catch (ex: AssertionError) {
+                false
+            }
+        }
     }
 
     @Test
@@ -211,7 +229,7 @@ class StatsScreenTest {
 
         composeTestRule.waitUntil(timeoutMillis = 10000) {
             try {
-                composeTestRule.onNodeWithText("Disconnecting...").assertExists()
+                composeTestRule.onNodeWithText("Disconnecting...").assertIsDisplayed().assertIsNotEnabled()
                 true
             } catch (ex: AssertionError) {
                 false
