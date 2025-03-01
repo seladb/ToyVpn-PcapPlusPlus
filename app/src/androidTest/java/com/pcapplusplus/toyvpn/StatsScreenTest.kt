@@ -225,7 +225,27 @@ class StatsScreenTest {
 
     @Test
     fun testVpnDisconnecting() {
-        renderScreen(vpnConnectionState = VpnConnectionState.DISCONNECTING)
+        val vpnConnectionStateLiveData = MutableLiveData(VpnConnectionState.DISCONNECTING)
+        every { mockViewModel.vpnConnectionState } returns vpnConnectionStateLiveData
+//        renderScreen(vpnConnectionState = VpnConnectionState.DISCONNECTING)
+
+        composeTestRule.setContent {
+            ToyVpnPcapPlusPlusTheme {
+                val navController = rememberNavController()
+
+                NavHost(
+                    navController = navController,
+                    startDestination = "stats_screen",
+                ) {
+                    composable("stats_screen") {
+                        StatsScreen(navController, mockViewModel)
+                    }
+                    composable("connect_screen") {
+                        Text("Connect Screen")
+                    }
+                }
+            }
+        }
 
         composeTestRule.waitUntil(timeoutMillis = 10000) {
             try {
