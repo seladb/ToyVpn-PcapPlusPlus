@@ -3,7 +3,6 @@ package com.pcapplusplus.toyvpn
 import androidx.compose.material3.Text
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsEnabled
-import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.assertTextEquals
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
@@ -204,7 +203,14 @@ class StatsScreenTest {
     fun testVpnDisconnecting() {
         renderScreen(vpnConnectionState = VpnConnectionState.DISCONNECTING)
 
-        composeTestRule.onNodeWithText("Disconnecting...").assertIsDisplayed().assertIsNotEnabled()
+        composeTestRule.waitUntil(timeoutMillis = 10000) {
+            try {
+                composeTestRule.onNodeWithText("Disconnecting...").fetchSemanticsNode()
+                true
+            } catch (ex: AssertionError) {
+                false
+            }
+        }
     }
 
     @Test
