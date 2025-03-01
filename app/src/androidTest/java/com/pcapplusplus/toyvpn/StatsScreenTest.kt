@@ -9,6 +9,7 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.onSibling
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.printToString
 import androidx.lifecycle.MutableLiveData
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -225,6 +226,9 @@ class StatsScreenTest {
     @Test
     fun testVpnDisconnecting() {
         renderScreen(vpnConnectionState = VpnConnectionState.DISCONNECTING)
+
+        println("****************** inside testVpnDisconnecting")
+        println("****************** ${composeTestRule.onNodeWithText("Disconnecting...").printToString()}")
 
         composeTestRule.waitUntil(timeoutMillis = 10000) {
             try {
