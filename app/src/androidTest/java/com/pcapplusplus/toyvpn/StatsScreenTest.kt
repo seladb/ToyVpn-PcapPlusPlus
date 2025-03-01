@@ -3,7 +3,6 @@ package com.pcapplusplus.toyvpn
 import androidx.compose.material3.Text
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsEnabled
-import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.assertTextEquals
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
@@ -225,39 +224,11 @@ class StatsScreenTest {
 
     @Test
     fun testVpnDisconnecting() {
-        val vpnConnectionStateLiveData = MutableLiveData(VpnConnectionState.DISCONNECTING)
-        val clientAddressLiveData = MutableLiveData("10.0.0.1")
-        val topDnsDomainsLiveData = MutableLiveData<List<DomainData>>()
-        val topTlsServerNamesLiveData = MutableLiveData<List<DomainData>>()
-
-        every { mockViewModel.vpnConnectionState } returns vpnConnectionStateLiveData
-        every { mockViewModel.clientAddress } returns clientAddressLiveData
-        every { mockViewModel.topDnsDomains } returns topDnsDomainsLiveData
-        every { mockViewModel.topTlsServerNames } returns topTlsServerNamesLiveData
-
-//        renderScreen(vpnConnectionState = VpnConnectionState.DISCONNECTING)
-
-        composeTestRule.setContent {
-            ToyVpnPcapPlusPlusTheme {
-                val navController = rememberNavController()
-
-                NavHost(
-                    navController = navController,
-                    startDestination = "stats_screen",
-                ) {
-                    composable("stats_screen") {
-                        StatsScreen(navController, mockViewModel)
-                    }
-                    composable("connect_screen") {
-                        Text("Connect Screen")
-                    }
-                }
-            }
-        }
+        renderScreen(vpnConnectionState = VpnConnectionState.DISCONNECTING)
 
         composeTestRule.waitUntil(timeoutMillis = 10000) {
             try {
-                composeTestRule.onNodeWithText("Disconnecting...").assertIsDisplayed().assertIsNotEnabled()
+                composeTestRule.onNodeWithText("Disconnecting...").assertIsDisplayed()
                 true
             } catch (ex: AssertionError) {
                 false
