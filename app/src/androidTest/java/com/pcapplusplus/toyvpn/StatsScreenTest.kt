@@ -226,7 +226,15 @@ class StatsScreenTest {
     @Test
     fun testVpnDisconnecting() {
         val vpnConnectionStateLiveData = MutableLiveData(VpnConnectionState.DISCONNECTING)
+        val clientAddressLiveData = MutableLiveData("10.0.0.1")
+        val topDnsDomainsLiveData = MutableLiveData<List<DomainData>>()
+        val topTlsServerNamesLiveData = MutableLiveData<List<DomainData>>()
+
         every { mockViewModel.vpnConnectionState } returns vpnConnectionStateLiveData
+        every { mockViewModel.clientAddress } returns clientAddressLiveData
+        every { mockViewModel.topDnsDomains } returns topDnsDomainsLiveData
+        every { mockViewModel.topTlsServerNames } returns topTlsServerNamesLiveData
+
 //        renderScreen(vpnConnectionState = VpnConnectionState.DISCONNECTING)
 
         composeTestRule.setContent {
