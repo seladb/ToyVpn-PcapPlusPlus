@@ -228,7 +228,7 @@ class StatsScreenTest {
     fun testVpnDisconnecting() {
         renderScreen(vpnConnectionState = VpnConnectionState.DISCONNECTING)
 
-        assertEquals("bla", composeTestRule.onNodeWithText("Disconnecting...").printToString())
+        assertTrue("bla" == composeTestRule.onNodeWithText("Disconnecting...").printToString(), "BLA BLA: ${composeTestRule.onNodeWithText("Disconnecting...").printToString()}")
 
         composeTestRule.waitUntil(timeoutMillis = 10000) {
             try {
