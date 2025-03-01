@@ -20,6 +20,7 @@ import com.pcapplusplus.toyvpn.ui.theme.ToyVpnPcapPlusPlusTheme
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
+import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -227,8 +228,7 @@ class StatsScreenTest {
     fun testVpnDisconnecting() {
         renderScreen(vpnConnectionState = VpnConnectionState.DISCONNECTING)
 
-        println("****************** inside testVpnDisconnecting")
-        println("****************** ${composeTestRule.onNodeWithText("Disconnecting...").printToString()}")
+        assertEquals("bla", composeTestRule.onNodeWithText("Disconnecting...").printToString())
 
         composeTestRule.waitUntil(timeoutMillis = 10000) {
             try {
