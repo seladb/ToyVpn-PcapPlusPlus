@@ -5,6 +5,7 @@ import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.onRoot
+import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.printToLog
 import androidx.lifecycle.MutableLiveData
 import androidx.navigation.compose.NavHost
@@ -226,8 +227,8 @@ class StatsScreenTest {
 
             composeTestRule.onRoot().printToLog("StatsScreenTestLog")
 
+            composeTestRule.onNodeWithText("Disconnecting...").performScrollTo()
             composeTestRule.awaitIdle()
-//            composeTestRule.onNode(hasAnyDescendant(hasText("Disconnecting..."))).assertExists()
             composeTestRule.onNodeWithText("Disconnecting...").assertIsDisplayed()
         }
 //    @Test
