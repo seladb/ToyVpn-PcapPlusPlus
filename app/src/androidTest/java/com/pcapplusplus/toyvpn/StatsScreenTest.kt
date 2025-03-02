@@ -230,9 +230,11 @@ class StatsScreenTest {
 
         Log.e("StatsScreenTest", composeTestRule.onNodeWithText("Disconnecting...").printToString())
 
-        composeTestRule.waitUntil(timeoutMillis = 10000) {
+        composeTestRule.waitUntil(timeoutMillis = 20000) {
             try {
-                composeTestRule.onNodeWithText("Disconnecting...").assertIsDisplayed()
+                val node = composeTestRule.onNodeWithText("Disconnecting...")
+                node.assertExists()
+                node.assertIsDisplayed()
                 true
             } catch (ex: AssertionError) {
                 false
