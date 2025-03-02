@@ -2,6 +2,7 @@ package com.pcapplusplus.toyvpn
 
 import androidx.compose.material3.Text
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.onRoot
@@ -229,7 +230,7 @@ class StatsScreenTest {
 
         buttonNode.performScrollTo()
         composeTestRule.waitForIdle()
-        buttonNode.assertIsDisplayed()
+        buttonNode.assertIsDisplayed().assertIsNotEnabled()
     }
 //    @Test
 //    fun testVpnDisconnecting() {
