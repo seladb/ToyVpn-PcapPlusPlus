@@ -1,5 +1,6 @@
 package com.pcapplusplus.toyvpn
 
+import android.util.Log
 import androidx.compose.material3.Text
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsEnabled
@@ -20,7 +21,6 @@ import com.pcapplusplus.toyvpn.ui.theme.ToyVpnPcapPlusPlusTheme
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
-import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -228,13 +228,7 @@ class StatsScreenTest {
     fun testVpnDisconnecting() {
         renderScreen(vpnConnectionState = VpnConnectionState.DISCONNECTING)
 
-        assertTrue(
-            "BLA BLA: ${composeTestRule.onNodeWithText(
-                "Disconnecting...",
-                useUnmergedTree = true,
-            ).printToString()} some text after to see if it's all",
-            "bla" == composeTestRule.onNodeWithText("Disconnecting...", useUnmergedTree = true).printToString(),
-        )
+        Log.e("StatsScreenTest", composeTestRule.onNodeWithText("Disconnecting...").printToString())
 
         composeTestRule.waitUntil(timeoutMillis = 10000) {
             try {

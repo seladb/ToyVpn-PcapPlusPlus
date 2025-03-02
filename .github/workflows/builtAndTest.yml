@@ -65,7 +65,11 @@ jobs:
         with:
           api-level: ${{ matrix.api-level }}
           arch: x86_64
-          script: ./gradlew -is connectedCheck
+          script: |
+            adb logcat -c
+            adb logcat &
+            gradle -is connectedCheck
+       
 
   build-server:
     runs-on: ubuntu-latest
