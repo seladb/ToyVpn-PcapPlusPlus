@@ -8,6 +8,7 @@ import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.performTextClearance
 import androidx.compose.ui.test.performTextInput
 import androidx.lifecycle.MutableLiveData
@@ -190,14 +191,11 @@ class ConnectScreenTest {
             val vpnConnectionErrorLiveData = MutableLiveData("Some error occurred")
             every { mockViewModel.vpnConnectionError } returns vpnConnectionErrorLiveData
 
-            composeTestRule.waitUntil(timeoutMillis = 10000) {
-                try {
-                    composeTestRule.onNodeWithText("Some error occurred").assertIsDisplayed()
-                    true
-                } catch (ex: AssertionError) {
-                    false
-                }
-            }
+            val errorNode = composeTestRule.onNodeWithText("Some error occurred")
+
+            errorNode.performScrollTo()
+            composeTestRule.waitForIdle()
+            errorNode.assertIsDisplayed()
         }
     }
 }

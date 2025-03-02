@@ -16,7 +16,6 @@ import com.pcapplusplus.toyvpn.model.VpnConnectionState
 import com.pcapplusplus.toyvpn.ui.theme.ToyVpnPcapPlusPlusTheme
 import io.mockk.every
 import io.mockk.mockk
-import kotlinx.coroutines.test.runTest
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -221,16 +220,17 @@ class StatsScreenTest {
 //    }
 
     @Test
-    fun testVpnDisconnecting() =
-        runTest {
-            renderScreen(vpnConnectionState = VpnConnectionState.DISCONNECTING)
+    fun testVpnDisconnecting() {
+        renderScreen(vpnConnectionState = VpnConnectionState.DISCONNECTING)
 
-            composeTestRule.onRoot().printToLog("StatsScreenTestLog")
+        composeTestRule.onRoot().printToLog("StatsScreenTestLog")
 
-            composeTestRule.onNodeWithText("Disconnecting...").performScrollTo()
-            composeTestRule.awaitIdle()
-            composeTestRule.onNodeWithText("Disconnecting...").assertIsDisplayed()
-        }
+        val buttonNode = composeTestRule.onNodeWithText("Disconnecting...")
+
+        buttonNode.performScrollTo()
+        composeTestRule.waitForIdle()
+        buttonNode.assertIsDisplayed()
+    }
 //    @Test
 //    fun testVpnDisconnecting() {
 //        renderScreen(vpnConnectionState = VpnConnectionState.DISCONNECTING)
