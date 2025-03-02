@@ -205,16 +205,13 @@ class StatsScreenTest {
     fun testClickDisconnectButton() {
         renderScreen()
 
-        composeTestRule.onNodeWithText("Disconnect").performClick()
+        val buttonNode = composeTestRule.onNodeWithText("Disconnect")
 
-        composeTestRule.waitUntil(timeoutMillis = 10000) {
-            try {
-                verify { mockViewModel.disconnectVpn() }
-                true
-            } catch (ex: AssertionError) {
-                false
-            }
-        }
+        buttonNode.performScrollTo()
+        composeTestRule.waitForIdle()
+        buttonNode.performClick()
+
+        verify { mockViewModel.disconnectVpn() }
     }
 
     @Test
