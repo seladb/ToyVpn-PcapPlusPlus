@@ -229,8 +229,8 @@ class StatsScreenTest {
         renderScreen(vpnConnectionState = VpnConnectionState.DISCONNECTING)
 
         assertTrue(
-            "BLA BLA: ${composeTestRule.onNodeWithText("Disconnecting...").printToString()}",
-            "bla" == composeTestRule.onNodeWithText("Disconnecting...").printToString(),
+            "BLA BLA: ${composeTestRule.onNodeWithText("Disconnecting...", useUnmergedTree = true).printToString()}",
+            "bla" == composeTestRule.onNodeWithText("Disconnecting...", useUnmergedTree = true).printToString(),
         )
 
         composeTestRule.waitUntil(timeoutMillis = 10000) {
