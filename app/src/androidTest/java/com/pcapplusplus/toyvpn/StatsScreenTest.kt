@@ -6,9 +6,8 @@ import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
-import androidx.compose.ui.test.onRoot
+import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
-import androidx.compose.ui.test.printToLog
 import androidx.lifecycle.MutableLiveData
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -18,6 +17,7 @@ import com.pcapplusplus.toyvpn.model.VpnConnectionState
 import com.pcapplusplus.toyvpn.ui.theme.ToyVpnPcapPlusPlusTheme
 import io.mockk.every
 import io.mockk.mockk
+import io.mockk.verify
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -201,27 +201,25 @@ class StatsScreenTest {
         }
     }
 
-//    @Test
-//    fun testClickDisconnectButton() {
-//        renderScreen()
-//
-//        composeTestRule.onNodeWithText("Disconnect").performClick()
-//
-//        composeTestRule.waitUntil(timeoutMillis = 10000) {
-//            try {
-//                verify { mockViewModel.disconnectVpn() }
-//                true
-//            } catch (ex: AssertionError) {
-//                false
-//            }
-//        }
-//    }
+    @Test
+    fun testClickDisconnectButton() {
+        renderScreen()
+
+        composeTestRule.onNodeWithText("Disconnect").performClick()
+
+        composeTestRule.waitUntil(timeoutMillis = 10000) {
+            try {
+                verify { mockViewModel.disconnectVpn() }
+                true
+            } catch (ex: AssertionError) {
+                false
+            }
+        }
+    }
 
     @Test
     fun testVpnDisconnecting() {
         renderScreen(vpnConnectionState = VpnConnectionState.DISCONNECTING)
-
-        composeTestRule.onRoot().printToLog("StatsScreenTestLog")
 
         val buttonNode = composeTestRule.onNodeWithText("Disconnecting...")
 
