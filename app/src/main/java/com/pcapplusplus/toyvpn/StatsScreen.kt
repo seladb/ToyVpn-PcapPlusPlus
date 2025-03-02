@@ -2,6 +2,7 @@ package com.pcapplusplus.toyvpn
 
 import android.content.Intent
 import android.net.Uri
+import android.util.Log
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -83,7 +84,9 @@ fun StatsScreen(
     }
 
     val onDisconnectClicked: () -> Unit = {
+        Log.e("StatsScreenLog", "Before viewModel.disconnectVpn()")
         viewModel.disconnectVpn()
+        Log.e("StatsScreenLog", "After viewModel.disconnectVpn()")
     }
 
     Column(
