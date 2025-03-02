@@ -1,9 +1,9 @@
 package com.pcapplusplus.toyvpn
 
 import androidx.compose.material3.Text
-import androidx.compose.ui.test.hasAnyDescendant
-import androidx.compose.ui.test.hasText
+import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.printToLog
 import androidx.lifecycle.MutableLiveData
@@ -227,8 +227,8 @@ class StatsScreenTest {
             composeTestRule.onRoot().printToLog("StatsScreenTestLog")
 
             composeTestRule.awaitIdle()
-            composeTestRule.onNode(hasAnyDescendant(hasText("Disconnecting..."))).assertExists()
-//        composeTestRule.onNodeWithText("Disconnecting...").assertIsDisplayed()
+//            composeTestRule.onNode(hasAnyDescendant(hasText("Disconnecting..."))).assertExists()
+            composeTestRule.onNodeWithText("Disconnecting...").assertIsDisplayed()
         }
 //    @Test
 //    fun testVpnDisconnecting() {
