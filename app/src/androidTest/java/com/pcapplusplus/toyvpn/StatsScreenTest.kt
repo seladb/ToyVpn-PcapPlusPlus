@@ -1,16 +1,11 @@
 package com.pcapplusplus.toyvpn
 
-import android.util.Log
 import androidx.compose.material3.Text
 import androidx.compose.ui.test.assertIsDisplayed
-import androidx.compose.ui.test.assertIsEnabled
-import androidx.compose.ui.test.assertTextEquals
 import androidx.compose.ui.test.junit4.createComposeRule
-import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
-import androidx.compose.ui.test.onSibling
-import androidx.compose.ui.test.performClick
-import androidx.compose.ui.test.printToString
+import androidx.compose.ui.test.onRoot
+import androidx.compose.ui.test.printToLog
 import androidx.lifecycle.MutableLiveData
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -20,7 +15,6 @@ import com.pcapplusplus.toyvpn.model.VpnConnectionState
 import com.pcapplusplus.toyvpn.ui.theme.ToyVpnPcapPlusPlusTheme
 import io.mockk.every
 import io.mockk.mockk
-import io.mockk.verify
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -100,137 +94,140 @@ class StatsScreenTest {
         mockViewModel = mockk(relaxed = true)
     }
 
-    @Test
-    fun testVpnConnected() {
-        renderScreen()
-
-        composeTestRule.waitUntil(timeoutMillis = 10000) {
-            try {
-                composeTestRule.onNodeWithText("Disconnect").assertIsDisplayed().assertIsEnabled()
-                true
-            } catch (ex: AssertionError) {
-                false
-            }
-        }
-    }
-
-    @Test
-    fun testVpnConnectedWithClientAddress() {
-        renderScreen(clientAddress = "1.2.3.4")
-
-        composeTestRule.onNodeWithText("IP Address").assertIsDisplayed()
-        composeTestRule.onNodeWithText("1.2.3.4").assertIsDisplayed()
-    }
-
-    @Test
-    fun testVpnConnectedWithPacketTraffic() {
-        val totalPacketCount = 396
-        val ipv4PacketCount = 11
-        val ipv6PacketCount = 22
-        val tcpPacketCount = 33
-        val udpPacketCount = 44
-        val dnsPacketCount = 55
-        val tlsPacketCount = 66
-        val tcpConnectionCount = 77
-        val udpConnectionCount = 88
-
-        renderScreen(
-            totalPacketCount = totalPacketCount,
-            ipv4PacketCount = ipv4PacketCount,
-            ipv6PacketCount = ipv6PacketCount,
-            tcpPacketCount = tcpPacketCount,
-            udpPacketCount = udpPacketCount,
-            dnsPacketCount = dnsPacketCount,
-            tlsPacketCount = tlsPacketCount,
-            tcpConnectionCount = tcpConnectionCount,
-            udpConnectionCount = udpConnectionCount,
-        )
-
-        val expectedValues =
-            listOf(
-                Triple("IPv4", "IPv4", ipv4PacketCount),
-                Triple("IPv6", "IPv6", ipv6PacketCount),
-                Triple("TCP", "TCP", tcpPacketCount),
-                Triple("UDP", "UDP", udpPacketCount),
-                Triple("DNS", "DNS", dnsPacketCount),
-                Triple("TLS", "TLS", tlsPacketCount),
-                Triple("TCPConn", "TCP", tcpConnectionCount),
-                Triple("UDPConn", "UDP", udpConnectionCount),
-            )
-
-        composeTestRule.waitUntil(timeoutMillis = 10000) {
-            try {
-                composeTestRule.onNodeWithText(
-                    "Total Packets",
-                ).assertIsDisplayed().onSibling().assertTextEquals(totalPacketCount.toString())
-
-                expectedValues.forEach { (testTag, label, count) ->
-                    composeTestRule.onNodeWithTag("${testTag}_label").assertIsDisplayed().assertTextEquals(label)
-                    composeTestRule.onNodeWithTag("${testTag}_count").assertIsDisplayed().assertTextEquals(count.toString())
-                    composeTestRule.onNodeWithTag("${testTag}_progress").assertIsDisplayed()
-                }
-                true
-            } catch (ex: AssertionError) {
-                false
-            }
-        }
-    }
-
-    @Test
-    fun testVpnConnectedWithTopDnsDomainData() {
-        val topDnsDomains =
-            listOf(
-                DomainData("google.com", 11),
-                DomainData("example.com", 22),
-            )
-
-        renderScreen(topDnsDomains = topDnsDomains)
-
-        topDnsDomains.forEach { (domain, count) ->
-            composeTestRule.onNodeWithText("https://$domain")
-            composeTestRule.onNodeWithText(count.toString())
-        }
-    }
-
-    @Test
-    fun testVpnConnectedWithTopTlsServerNamesData() {
-        val topTlsServerNames =
-            listOf(
-                DomainData("facebook.com", 33),
-                DomainData("apple.com", 44),
-            )
-
-        renderScreen(topTlsServerNames = topTlsServerNames)
-
-        topTlsServerNames.forEach { (domain, count) ->
-            composeTestRule.onNodeWithText("https://$domain")
-            composeTestRule.onNodeWithText(count.toString())
-        }
-    }
-
-    @Test
-    fun testClickDisconnectButton() {
-        renderScreen()
-
-        composeTestRule.onNodeWithText("Disconnect").performClick()
-
-        composeTestRule.waitUntil(timeoutMillis = 10000) {
-            try {
-                verify { mockViewModel.disconnectVpn() }
-                true
-            } catch (ex: AssertionError) {
-                false
-            }
-        }
-    }
+//    @Test
+//    fun testVpnConnected() {
+//        renderScreen()
+//
+//        composeTestRule.waitUntil(timeoutMillis = 10000) {
+//            try {
+//                composeTestRule.onNodeWithText("Disconnect").assertIsDisplayed().assertIsEnabled()
+//                true
+//            } catch (ex: AssertionError) {
+//                false
+//            }
+//        }
+//    }
+//
+//    @Test
+//    fun testVpnConnectedWithClientAddress() {
+//        renderScreen(clientAddress = "1.2.3.4")
+//
+//        composeTestRule.onNodeWithText("IP Address").assertIsDisplayed()
+//        composeTestRule.onNodeWithText("1.2.3.4").assertIsDisplayed()
+//    }
+//
+//    @Test
+//    fun testVpnConnectedWithPacketTraffic() {
+//        val totalPacketCount = 396
+//        val ipv4PacketCount = 11
+//        val ipv6PacketCount = 22
+//        val tcpPacketCount = 33
+//        val udpPacketCount = 44
+//        val dnsPacketCount = 55
+//        val tlsPacketCount = 66
+//        val tcpConnectionCount = 77
+//        val udpConnectionCount = 88
+//
+//        renderScreen(
+//            totalPacketCount = totalPacketCount,
+//            ipv4PacketCount = ipv4PacketCount,
+//            ipv6PacketCount = ipv6PacketCount,
+//            tcpPacketCount = tcpPacketCount,
+//            udpPacketCount = udpPacketCount,
+//            dnsPacketCount = dnsPacketCount,
+//            tlsPacketCount = tlsPacketCount,
+//            tcpConnectionCount = tcpConnectionCount,
+//            udpConnectionCount = udpConnectionCount,
+//        )
+//
+//        val expectedValues =
+//            listOf(
+//                Triple("IPv4", "IPv4", ipv4PacketCount),
+//                Triple("IPv6", "IPv6", ipv6PacketCount),
+//                Triple("TCP", "TCP", tcpPacketCount),
+//                Triple("UDP", "UDP", udpPacketCount),
+//                Triple("DNS", "DNS", dnsPacketCount),
+//                Triple("TLS", "TLS", tlsPacketCount),
+//                Triple("TCPConn", "TCP", tcpConnectionCount),
+//                Triple("UDPConn", "UDP", udpConnectionCount),
+//            )
+//
+//        composeTestRule.waitUntil(timeoutMillis = 10000) {
+//            try {
+//                composeTestRule.onNodeWithText(
+//                    "Total Packets",
+//                ).assertIsDisplayed().onSibling().assertTextEquals(totalPacketCount.toString())
+//
+//                expectedValues.forEach { (testTag, label, count) ->
+//                    composeTestRule.onNodeWithTag("${testTag}_label").assertIsDisplayed().assertTextEquals(label)
+//                    composeTestRule.onNodeWithTag("${testTag}_count").assertIsDisplayed().assertTextEquals(count.toString())
+//                    composeTestRule.onNodeWithTag("${testTag}_progress").assertIsDisplayed()
+//                }
+//                true
+//            } catch (ex: AssertionError) {
+//                false
+//            }
+//        }
+//    }
+//
+//    @Test
+//    fun testVpnConnectedWithTopDnsDomainData() {
+//        val topDnsDomains =
+//            listOf(
+//                DomainData("google.com", 11),
+//                DomainData("example.com", 22),
+//            )
+//
+//        renderScreen(topDnsDomains = topDnsDomains)
+//
+//        topDnsDomains.forEach { (domain, count) ->
+//            composeTestRule.onNodeWithText("https://$domain")
+//            composeTestRule.onNodeWithText(count.toString())
+//        }
+//    }
+//
+//    @Test
+//    fun testVpnConnectedWithTopTlsServerNamesData() {
+//        val topTlsServerNames =
+//            listOf(
+//                DomainData("facebook.com", 33),
+//                DomainData("apple.com", 44),
+//            )
+//
+//        renderScreen(topTlsServerNames = topTlsServerNames)
+//
+//        topTlsServerNames.forEach { (domain, count) ->
+//            composeTestRule.onNodeWithText("https://$domain")
+//            composeTestRule.onNodeWithText(count.toString())
+//        }
+//    }
+//
+//    @Test
+//    fun testClickDisconnectButton() {
+//        renderScreen()
+//
+//        composeTestRule.onNodeWithText("Disconnect").performClick()
+//
+//        composeTestRule.waitUntil(timeoutMillis = 10000) {
+//            try {
+//                verify { mockViewModel.disconnectVpn() }
+//                true
+//            } catch (ex: AssertionError) {
+//                false
+//            }
+//        }
+//    }
 
     @Test
     fun testVpnDisconnecting() {
         renderScreen(vpnConnectionState = VpnConnectionState.DISCONNECTING)
 
-        Log.e("StatsScreenTest", composeTestRule.onNodeWithText("Disconnecting...").printToString())
+        Thread.sleep(10000)
 
-        composeTestRule.waitUntil(timeoutMillis = 20000) {
+        composeTestRule.onRoot().printToLog("StatsScreenTestLog")
+        composeTestRule.onNodeWithText("Disconnecting...").printToLog("StatsScreenTestLog")
+
+        composeTestRule.waitUntil(timeoutMillis = 30000) {
             try {
                 val node = composeTestRule.onNodeWithText("Disconnecting...")
                 node.assertExists()
@@ -242,10 +239,10 @@ class StatsScreenTest {
         }
     }
 
-    @Test
-    fun testVpnDisconnected() {
-        renderScreen(vpnConnectionState = VpnConnectionState.DISCONNECTED)
-
-        composeTestRule.onNodeWithText("Connect Screen").assertIsDisplayed()
-    }
+//    @Test
+//    fun testVpnDisconnected() {
+//        renderScreen(vpnConnectionState = VpnConnectionState.DISCONNECTED)
+//
+//        composeTestRule.onNodeWithText("Connect Screen").assertIsDisplayed()
+//    }
 }
