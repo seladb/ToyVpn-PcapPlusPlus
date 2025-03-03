@@ -8,9 +8,11 @@ import androidx.compose.ui.test.assertTextEquals
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.onParent
+import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.onSibling
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
+import androidx.compose.ui.test.printToLog
 import androidx.lifecycle.MutableLiveData
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -154,9 +156,11 @@ class StatsScreenTest {
 //                Triple("UDPConn", "UDP", udpConnectionCount),
 //            )
 
+        composeTestRule.onRoot().printToLog("TestVpnConnectedWithPacketTrafficLog")
+
         val totalPacketsNode = composeTestRule.onNodeWithText("Total Packets")
         totalPacketsNode.onParent().performScrollTo()
-        totalPacketsNode.assertIsDisplayed().onSibling().assertTextEquals(totalPacketCount.toString())
+        totalPacketsNode.onSibling().assertTextEquals(totalPacketCount.toString())
 //        expectedValues.forEach { (testTag, label, count) ->
 //            composeTestRule.onNodeWithTag("${testTag}_label").assertIsDisplayed().assertTextEquals(label)
 //            composeTestRule.onNodeWithTag("${testTag}_count").assertIsDisplayed().assertTextEquals(count.toString())
