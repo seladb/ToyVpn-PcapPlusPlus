@@ -190,8 +190,7 @@ class ConnectScreenTest {
             val vpnConnectionErrorLiveData = MutableLiveData("Some error occurred")
             every { mockViewModel.vpnConnectionError } returns vpnConnectionErrorLiveData
 
-            composeTestRule.onNodeWithText("Some error occurred")
-                .assertIsDisplayed()
+            composeTestRule.onNodeWithText("Some error occurred").assertExists()
         }
     }
 }

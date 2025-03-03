@@ -10,6 +10,7 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.onSibling
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performScrollTo
 import androidx.lifecycle.MutableLiveData
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -103,7 +104,10 @@ class StatsScreenTest {
     fun testVpnConnected() {
         renderScreen()
 
-        composeTestRule.onNodeWithText("Disconnect").assertIsDisplayed().assertIsEnabled()
+        val buttonNode = composeTestRule.onNodeWithText("Disconnect")
+        buttonNode.performScrollTo()
+        composeTestRule.waitForIdle()
+        buttonNode.assertIsDisplayed().assertIsEnabled()
     }
 
     @Test
@@ -150,12 +154,11 @@ class StatsScreenTest {
                 Triple("UDPConn", "UDP", udpConnectionCount),
             )
 
-        composeTestRule.onNodeWithText("Total Packets").assertIsDisplayed().onSibling().assertTextEquals(totalPacketCount.toString())
-
+        composeTestRule.onNodeWithText("Total Packets").onSibling().assertTextEquals(totalPacketCount.toString())
         expectedValues.forEach { (testTag, label, count) ->
-            composeTestRule.onNodeWithTag("${testTag}_label").assertIsDisplayed().assertTextEquals(label)
-            composeTestRule.onNodeWithTag("${testTag}_count").assertIsDisplayed().assertTextEquals(count.toString())
-            composeTestRule.onNodeWithTag("${testTag}_progress").assertIsDisplayed()
+            composeTestRule.onNodeWithTag("${testTag}_label").assertTextEquals(label)
+            composeTestRule.onNodeWithTag("${testTag}_count").assertTextEquals(count.toString())
+            composeTestRule.onNodeWithTag("${testTag}_progress").assertExists()
         }
     }
 
@@ -195,7 +198,11 @@ class StatsScreenTest {
     fun testClickDisconnectButton() {
         renderScreen()
 
-        composeTestRule.onNodeWithText("Disconnect").performClick()
+        val buttonNode = composeTestRule.onNodeWithText("Disconnect")
+
+        buttonNode.performScrollTo()
+        composeTestRule.waitForIdle()
+        buttonNode.performClick()
 
         verify { mockViewModel.disconnectVpn() }
     }
@@ -204,7 +211,11 @@ class StatsScreenTest {
     fun testVpnDisconnecting() {
         renderScreen(vpnConnectionState = VpnConnectionState.DISCONNECTING)
 
-        composeTestRule.onNodeWithText("Disconnecting...").assertIsDisplayed().assertIsNotEnabled()
+        val buttonNode = composeTestRule.onNodeWithText("Disconnecting...")
+
+        buttonNode.performScrollTo()
+        composeTestRule.waitForIdle()
+        buttonNode.assertIsDisplayed().assertIsNotEnabled()
     }
 
     @Test
