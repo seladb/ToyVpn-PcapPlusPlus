@@ -66,8 +66,9 @@ jobs:
           api-level: ${{ matrix.api-level }}
           arch: x86_64
           script: |
-            adb logcat -c
-            adb logcat &
+# Uncomment to print logs
+#            adb logcat -c
+#            adb logcat &
             gradle -is connectedCheck
        
 
