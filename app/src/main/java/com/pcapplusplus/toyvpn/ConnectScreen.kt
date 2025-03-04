@@ -1,6 +1,6 @@
 package com.pcapplusplus.toyvpn
 
-import android.util.Log
+import android.content.Context
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -31,9 +31,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -51,12 +52,14 @@ fun ConnectScreen(
     navController: NavController,
     viewModel: ToyVpnViewModel,
 ) {
-    var serverAddress by remember { mutableStateOf(TextFieldValue("172.27.1.113")) }
-    var serverPort by remember { mutableStateOf(TextFieldValue("5687")) }
-    var secret by remember { mutableStateOf(TextFieldValue("test")) }
+    val context = LocalContext.current
+
+    var serverAddress by remember { mutableStateOf(getSavedText(context, "serverAddress")) }
+    var serverPort by remember { mutableStateOf(getSavedText(context, "serverPort")) }
+    var secret by remember { mutableStateOf(getSavedText(context, "secret")) }
     var serverAddressError by remember { mutableStateOf<String?>(null) }
-    var serverPortError by remember { mutableStateOf<String?>(null) }
-    val secretError = secret.text.isEmpty()
+    var serverPortError: String? by remember { mutableStateOf<String?>(null) }
+    var secretError by remember { mutableStateOf<String?>(null) }
 
     val vpnConnectionState by viewModel.vpnConnectionState.observeAsState(VpnConnectionState.DISCONNECTED)
     val vpnConnectionError by viewModel.vpnConnectionError.observeAsState(null)
@@ -78,33 +81,43 @@ fun ConnectScreen(
     val onConnectClicked: () -> Unit = {
         serverAddressError = null
         serverPortError = null
+        secretError = null
 
-        val validAddress = validateIpv4Address(serverAddress.text)
-        val validPort = validatePort(serverPort.text)
+        val validAddress = validateIpv4Address(serverAddress)
+        val validPort = validatePort(serverPort)
 
-        // Validate server address and port
-        if (validAddress && validPort && !secretError) {
+        if (validAddress && validPort && secret.isNotEmpty()) {
             viewModel.connectVpn(
-                serverAddress.text,
-                serverPort.text.toIntOrNull() ?: 0,
-                secret.text,
+                serverAddress,
+                serverPort.toIntOrNull() ?: 0,
+                secret,
             )
+            saveText(context, "serverAddress", serverAddress)
+            saveText(context, "serverPort", serverPort)
+            saveText(context, "secret", secret)
         } else {
             // If there's an issue with address or port
             serverAddressError =
-                if (serverAddress.text.isEmpty()) {
+                if (serverAddress.isEmpty()) {
                     "Server address cannot be empty"
-                } else if (!validateIpv4Address(serverAddress.text)) {
+                } else if (!validateIpv4Address(serverAddress)) {
                     "Invalid server address. Please enter a valid IPv4 address."
                 } else {
                     null
                 }
 
             serverPortError =
-                if (serverPort.text.isEmpty()) {
+                if (serverPort.isEmpty()) {
                     "Port cannot be empty"
-                } else if (!validatePort(serverPort.text)) {
+                } else if (!validatePort(serverPort)) {
                     "Invalid port number. Must be between 0 and 65535."
+                } else {
+                    null
+                }
+
+            secretError =
+                if (secret.isEmpty()) {
+                    "Secret cannot be empty"
                 } else {
                     null
                 }
@@ -112,7 +125,6 @@ fun ConnectScreen(
     }
 
     LaunchedEffect(vpnConnectionState) {
-        Log.w("ConnectScreen", "LaunchedEffect(isConnected): $vpnConnectionState")
         if (vpnConnectionState == VpnConnectionState.CONNECTED) {
             navController.navigate("stats_screen")
         }
@@ -150,7 +162,7 @@ fun ConnectScreen(
             value = serverAddress,
             onValueChange = { serverAddress = it },
             label = { Text(text = "Server Address") },
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier.fillMaxWidth().testTag("server_address_text_field"),
             leadingIcon = { Icon(imageVector = Icons.Default.Language, null) },
             shape = RoundedCornerShape(16.dp),
             isError = serverAddressError != null,
@@ -161,7 +173,7 @@ fun ConnectScreen(
                 text = it,
                 color = MaterialTheme.colorScheme.error,
                 style = MaterialTheme.typography.bodySmall,
-                modifier = Modifier.padding(top = 4.dp),
+                modifier = Modifier.padding(top = 4.dp).testTag("server_address_error"),
             )
         }
 
@@ -171,7 +183,7 @@ fun ConnectScreen(
             value = serverPort,
             onValueChange = { serverPort = it },
             label = { Text(text = "Server Port") },
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier.fillMaxWidth().testTag("server_port_text_field"),
             keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number),
             leadingIcon = { Icon(imageVector = Icons.Default.Numbers, null) },
             shape = RoundedCornerShape(16.dp),
@@ -183,7 +195,7 @@ fun ConnectScreen(
                 text = it,
                 color = MaterialTheme.colorScheme.error,
                 style = MaterialTheme.typography.bodySmall,
-                modifier = Modifier.padding(top = 4.dp),
+                modifier = Modifier.padding(top = 4.dp).testTag("server_port_error"),
             )
         }
 
@@ -193,18 +205,18 @@ fun ConnectScreen(
             value = secret,
             onValueChange = { secret = it },
             label = { Text(text = "Secret") },
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier.fillMaxWidth().testTag("secret_text_field"),
             leadingIcon = { Icon(imageVector = Icons.Default.Key, null) },
             shape = RoundedCornerShape(16.dp),
-            isError = secretError,
+            isError = secretError != null,
         )
 
-        if (secretError) {
+        secretError?.let {
             Text(
-                text = "Secret cannot be empty",
+                text = it,
                 color = MaterialTheme.colorScheme.error,
                 style = MaterialTheme.typography.bodySmall,
-                modifier = Modifier.padding(top = 4.dp),
+                modifier = Modifier.padding(top = 4.dp).testTag("secret_error"),
             )
         }
 
@@ -234,6 +246,25 @@ fun ConnectScreen(
             )
         }
     }
+}
+
+fun getSavedText(
+    context: Context,
+    key: String,
+): String {
+    val sharedPreferences = context.getSharedPreferences("ToyVpnPreferences", Context.MODE_PRIVATE)
+    return sharedPreferences.getString(key, "") ?: ""
+}
+
+fun saveText(
+    context: Context,
+    key: String,
+    value: String,
+) {
+    val sharedPreferences = context.getSharedPreferences("ToyVpnPreferences", Context.MODE_PRIVATE)
+    val editor = sharedPreferences.edit()
+    editor.putString(key, value)
+    editor.apply()
 }
 
 @Preview(showBackground = true)

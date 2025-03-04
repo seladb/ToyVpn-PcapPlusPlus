@@ -6,6 +6,7 @@ import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
+import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextClearance
@@ -35,6 +36,16 @@ open class BaseTest {
     @Before
     fun setUp() {
         mockViewModel = mockk(relaxed = true)
+    }
+
+    fun renderScreen(
+        vpnConnectionState: VpnConnectionState = VpnConnectionState.DISCONNECTED,
+        vpnConnectionError: String? = null,
+    ) {
+        val vpnConnectionStateLiveData = MutableLiveData(vpnConnectionState)
+        every { mockViewModel.vpnConnectionState } returns vpnConnectionStateLiveData
+        val vpnConnectionErrorLiveData = MutableLiveData(vpnConnectionError)
+        every { mockViewModel.vpnConnectionError } returns vpnConnectionErrorLiveData
 
         composeTestRule.setContent {
             ToyVpnPcapPlusPlusTheme {
@@ -57,9 +68,13 @@ open class BaseTest {
             }
         }
 
-        composeTestRule.onNodeWithText("Server Address").performTextClearance()
-        composeTestRule.onNodeWithText("Server Port").performTextClearance()
-        composeTestRule.onNodeWithText("Secret").performTextClearance()
+        if (vpnConnectionState != VpnConnectionState.CONNECTED) {
+            composeTestRule.onNodeWithTag("server_address_text_field").performTextClearance()
+            composeTestRule.onNodeWithTag("server_port_text_field").performTextClearance()
+            composeTestRule.onNodeWithTag("secret_text_field").performTextClearance()
+        }
+
+        composeTestRule.waitForIdle()
     }
 }
 
@@ -87,7 +102,9 @@ class ConnectScreenTest {
 
         @Test
         fun testServerAddressValidation() {
-            composeTestRule.onNodeWithText("Server Address")
+            renderScreen()
+
+            composeTestRule.onNodeWithTag("server_address_text_field")
                 .performTextInput(inputValue)
 
             composeTestRule.onNodeWithText("Connect").performClick()
@@ -121,7 +138,9 @@ class ConnectScreenTest {
 
         @Test
         fun testServerPortValidation() {
-            composeTestRule.onNodeWithText("Server Port")
+            renderScreen()
+
+            composeTestRule.onNodeWithTag("server_port_text_field")
                 .performTextInput(inputValue)
 
             composeTestRule.onNodeWithText("Connect").performClick()
@@ -139,11 +158,13 @@ class ConnectScreenTest {
     class OtherTests : BaseTest() {
         @Test
         fun testElementsAreDisplayed() {
+            renderScreen()
+
             composeTestRule.onNodeWithContentDescription("Logo").assertIsDisplayed()
 
-            composeTestRule.onNodeWithText("Server Address").assertIsDisplayed()
-            composeTestRule.onNodeWithText("Server Port").assertIsDisplayed()
-            composeTestRule.onNodeWithText("Secret").assertIsDisplayed()
+            composeTestRule.onNodeWithTag("server_address_text_field").assertIsDisplayed()
+            composeTestRule.onNodeWithTag("server_port_text_field").assertIsDisplayed()
+            composeTestRule.onNodeWithTag("secret_text_field").assertIsDisplayed()
             composeTestRule.onNodeWithText("PcapPlusPlus Toy VPN").assertIsDisplayed()
 
             composeTestRule.onNodeWithText("Connect").assertIsDisplayed().assertIsEnabled()
@@ -151,6 +172,8 @@ class ConnectScreenTest {
 
         @Test
         fun testSecretValidation() {
+            renderScreen()
+
             composeTestRule.onNodeWithText("Connect").performClick()
 
             composeTestRule.onNodeWithText("Secret cannot be empty").assertIsDisplayed()
@@ -158,9 +181,15 @@ class ConnectScreenTest {
 
         @Test
         fun testConnectButtonClick() {
-            composeTestRule.onNodeWithText("Server Address").performTextInput("192.168.1.1")
-            composeTestRule.onNodeWithText("Server Port").performTextInput("8080")
-            composeTestRule.onNodeWithText("Secret").performTextInput("validSecret")
+            renderScreen()
+
+            composeTestRule.onNodeWithTag("server_address_text_field").performTextInput("192.168.1.1")
+            composeTestRule.onNodeWithTag("server_port_text_field").performTextInput("8080")
+            composeTestRule.onNodeWithTag("secret_text_field").performTextInput("validSecret")
+
+            composeTestRule.onNodeWithTag("server_address_error").assertDoesNotExist()
+            composeTestRule.onNodeWithTag("server_port_error").assertDoesNotExist()
+            composeTestRule.onNodeWithTag("secret_error").assertDoesNotExist()
 
             composeTestRule.onNodeWithText("Connect").performClick()
 
@@ -169,8 +198,7 @@ class ConnectScreenTest {
 
         @Test
         fun testVpnConnectionState_Connecting() {
-            val vpnConnectionStateLiveData = MutableLiveData(VpnConnectionState.CONNECTING)
-            every { mockViewModel.vpnConnectionState } returns vpnConnectionStateLiveData
+            renderScreen(vpnConnectionState = VpnConnectionState.CONNECTING)
 
             composeTestRule.onNodeWithText("Connecting...")
                 .assertIsDisplayed().assertIsNotEnabled()
@@ -178,8 +206,7 @@ class ConnectScreenTest {
 
         @Test
         fun testVpnConnectionState_Connected() {
-            val vpnConnectionStateLiveData = MutableLiveData(VpnConnectionState.CONNECTED)
-            every { mockViewModel.vpnConnectionState } returns vpnConnectionStateLiveData
+            renderScreen(vpnConnectionState = VpnConnectionState.CONNECTED)
 
             composeTestRule.onNodeWithText("Stats Screen")
                 .assertIsDisplayed()
@@ -187,8 +214,7 @@ class ConnectScreenTest {
 
         @Test
         fun testVpnConnectionError() {
-            val vpnConnectionErrorLiveData = MutableLiveData("Some error occurred")
-            every { mockViewModel.vpnConnectionError } returns vpnConnectionErrorLiveData
+            renderScreen(vpnConnectionError = "Some error occurred")
 
             composeTestRule.onNodeWithText("Some error occurred").assertExists()
         }
