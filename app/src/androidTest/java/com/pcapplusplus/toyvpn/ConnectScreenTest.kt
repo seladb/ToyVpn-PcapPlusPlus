@@ -1,9 +1,11 @@
 package com.pcapplusplus.toyvpn
 
 import androidx.compose.material3.Text
+import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.assertIsNotEnabled
+import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
@@ -20,6 +22,7 @@ import com.pcapplusplus.toyvpn.ui.theme.ToyVpnPcapPlusPlusTheme
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
+import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -34,7 +37,7 @@ open class BaseTest {
     protected lateinit var mockViewModel: ToyVpnViewModel
 
     @Before
-    fun setUp() {
+    open fun setUp() {
         mockViewModel = mockk(relaxed = true)
     }
 
@@ -152,6 +155,73 @@ class ConnectScreenTest {
                 composeTestRule.onNodeWithText("Invalid port number. Must be between 0 and 65535.")
                     .assertIsDisplayed()
             }
+        }
+    }
+
+    class SharedPreferencesTests : BaseTest() {
+        class MockSharedPreferencesProvider(private val preferences: MutableMap<String, String>) : SharedPreferencesProvider {
+            override fun getSavedText(key: String): String {
+                return preferences[key] ?: ""
+            }
+
+            override fun saveText(
+                key: String,
+                value: String,
+            ) {
+                preferences[key] = value
+            }
+        }
+
+        private val serverAddress = "10.20.30.40"
+        private val serverPort = "4321"
+        private val secret = "secret"
+        private val sharedPreferences =
+            MockSharedPreferencesProvider(mutableMapOf("serverAddress" to serverAddress, "serverPort" to serverPort, "secret" to secret))
+
+        @Before
+        override fun setUp() {
+            super.setUp()
+
+            composeTestRule.setContent {
+                ConnectScreen(navController = mockk(), viewModel = mockViewModel, sharedPreferencesProvider = sharedPreferences)
+            }
+        }
+
+        @Test
+        fun testConnectScreenLoadsSavedPreferences() {
+            composeTestRule.onNodeWithTag("server_address_text_field")
+                .assert(hasText(serverAddress))
+
+            composeTestRule.onNodeWithTag("server_port_text_field")
+                .assert(hasText(serverPort))
+
+            composeTestRule.onNodeWithTag("secret_text_field")
+                .assert(hasText(secret))
+        }
+
+        @Test
+        fun testConnectScreenSavesPreferences() {
+            composeTestRule.onNodeWithTag("server_address_text_field")
+                .performTextClearance()
+            composeTestRule.onNodeWithTag("server_address_text_field")
+                .performTextInput("192.168.1.2")
+
+            composeTestRule.onNodeWithTag("server_port_text_field")
+                .performTextClearance()
+            composeTestRule.onNodeWithTag("server_port_text_field")
+                .performTextInput("9090")
+
+            composeTestRule.onNodeWithTag("secret_text_field")
+                .performTextClearance()
+            composeTestRule.onNodeWithTag("secret_text_field")
+                .performTextInput("newSecret")
+
+            composeTestRule.onNodeWithText("Connect")
+                .performClick()
+
+            assertEquals("192.168.1.2", sharedPreferences.getSavedText("serverAddress"))
+            assertEquals("9090", sharedPreferences.getSavedText("serverPort"))
+            assertEquals("newSecret", sharedPreferences.getSavedText("secret"))
         }
     }
 

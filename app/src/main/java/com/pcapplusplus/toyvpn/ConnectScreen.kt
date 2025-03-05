@@ -1,6 +1,5 @@
 package com.pcapplusplus.toyvpn
 
-import android.content.Context
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -51,12 +50,14 @@ val defaultPadding = 16.dp
 fun ConnectScreen(
     navController: NavController,
     viewModel: ToyVpnViewModel,
+    sharedPreferencesProvider: SharedPreferencesProvider? = null,
 ) {
     val context = LocalContext.current
+    val preferencesProvider = sharedPreferencesProvider ?: DefaultSharedPreferencesProvider(context, "ToyVpnPreferences")
 
-    var serverAddress by remember { mutableStateOf(getSavedText(context, "serverAddress")) }
-    var serverPort by remember { mutableStateOf(getSavedText(context, "serverPort")) }
-    var secret by remember { mutableStateOf(getSavedText(context, "secret")) }
+    var serverAddress by remember { mutableStateOf(preferencesProvider.getSavedText("serverAddress")) }
+    var serverPort by remember { mutableStateOf(preferencesProvider.getSavedText("serverPort")) }
+    var secret by remember { mutableStateOf(preferencesProvider.getSavedText("secret")) }
     var serverAddressError by remember { mutableStateOf<String?>(null) }
     var serverPortError: String? by remember { mutableStateOf<String?>(null) }
     var secretError by remember { mutableStateOf<String?>(null) }
@@ -92,9 +93,9 @@ fun ConnectScreen(
                 serverPort.toIntOrNull() ?: 0,
                 secret,
             )
-            saveText(context, "serverAddress", serverAddress)
-            saveText(context, "serverPort", serverPort)
-            saveText(context, "secret", secret)
+            preferencesProvider.saveText("serverAddress", serverAddress)
+            preferencesProvider.saveText("serverPort", serverPort)
+            preferencesProvider.saveText("secret", secret)
         } else {
             // If there's an issue with address or port
             serverAddressError =
@@ -246,25 +247,6 @@ fun ConnectScreen(
             )
         }
     }
-}
-
-fun getSavedText(
-    context: Context,
-    key: String,
-): String {
-    val sharedPreferences = context.getSharedPreferences("ToyVpnPreferences", Context.MODE_PRIVATE)
-    return sharedPreferences.getString(key, "") ?: ""
-}
-
-fun saveText(
-    context: Context,
-    key: String,
-    value: String,
-) {
-    val sharedPreferences = context.getSharedPreferences("ToyVpnPreferences", Context.MODE_PRIVATE)
-    val editor = sharedPreferences.edit()
-    editor.putString(key, value)
-    editor.apply()
 }
 
 @Preview(showBackground = true)
