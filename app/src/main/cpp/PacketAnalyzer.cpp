@@ -11,10 +11,6 @@
 #include <string>
 #include <vector>
 
-//#define LOG_TAG "ToyVpnNativeCode"
-//
-//#define LOGW(...) __android_log_print(ANDROID_LOG_WARN, LOG_TAG, __VA_ARGS__)
-
 void analyzeDnsPacket(const pcpp::Packet &packet,
                       std::ostringstream &jsonStream) {
     auto dnsLayer = packet.getLayerOfType<pcpp::DnsLayer>();
