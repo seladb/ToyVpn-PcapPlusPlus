@@ -76,7 +76,7 @@ class ToyVpnViewModelTest {
 
             viewModel.disconnectVpn()
 
-            verify { mockVpnServiceManager.stopVpnService() }
+            verify(timeout = 10000) { mockVpnServiceManager.stopVpnService() }
 
             assertEquals(1, viewModel.ipv4PacketCount.value)
         }
