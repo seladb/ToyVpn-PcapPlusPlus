@@ -16,5 +16,4 @@
 .externalNativeBuild
 .cxx
 local.properties
-/server/linux/ToyVpnServer
 /app/libs/*

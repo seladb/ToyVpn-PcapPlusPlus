@@ -93,19 +93,19 @@ jobs:
           repository: "seladb/PcapPlusPlus"
           tag: "v${{env.PCAPPLUSPLUS_LATEST_VERSION}}"
           fileName: "pcapplusplus-${{env.PCAPPLUSPLUS_LATEST_VERSION}}-ubuntu-${{env.DISTRO_VERSION}}-gcc-*.tar.gz"
-          out-file-path: "server/linux/libs"
+          out-file-path: "server/libs"
           tarBall: true
           extract: true
 
       - name: Rename PcapPlusPlus directory
         run: |
-          export RELEASE_DIR=$(find "$GITHUB_WORKSPACE/server/linux/libs" -maxdepth 1 -type d -name 'pcapplusplus*' | head -n 1)
+          export RELEASE_DIR=$(find "$GITHUB_WORKSPACE/server/libs" -maxdepth 1 -type d -name 'pcapplusplus*' | head -n 1)
           if [ -z "$RELEASE_DIR" ]; then
             echo "Error: No directory matching 'pcapplusplus*' found."
             exit 1
           fi
           echo Release dir: $RELEASE_DIR
-          mv $RELEASE_DIR $GITHUB_WORKSPACE/server/linux/libs/pcapplusplus
+          mv $RELEASE_DIR $GITHUB_WORKSPACE/server/libs/pcapplusplus
 
       - name: Install dependencies
         run: |
@@ -113,7 +113,7 @@ jobs:
 
       - name: Build VPN server
         run: |
-          cd server/linux
+          cd server
           cmake -S . -B build
           cmake --build build
 
@@ -130,4 +130,4 @@ jobs:
         uses: jidicula/clang-format-action@v4.14.0
         with:
           clang-format-version: "19"
-          exclude-regex: "(^|/)(app/libs|server/linux/libs)/"
+          exclude-regex: "(^|/)(app/libs|server/libs)/"
