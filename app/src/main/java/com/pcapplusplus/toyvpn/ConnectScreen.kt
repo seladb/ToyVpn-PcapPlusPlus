@@ -97,7 +97,6 @@ fun ConnectScreen(
             preferencesProvider.saveText("serverPort", serverPort)
             preferencesProvider.saveText("secret", secret)
         } else {
-            // If there's an issue with address or port
             serverAddressError =
                 if (serverAddress.isEmpty()) {
                     "Server address cannot be empty"

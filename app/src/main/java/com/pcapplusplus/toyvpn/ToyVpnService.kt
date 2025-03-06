@@ -60,7 +60,6 @@ class ToyVpnService : VpnService() {
                 intent: Intent?,
             ) {
                 if (intent?.action == BroadcastActions.VPN_SERVICE_STOP) {
-                    Log.w(LOG_TAG, "Got ${BroadcastActions.VPN_SERVICE_STOP}, stopping self")
                     stopSelf()
                     disconnectVpn()
                 }
@@ -130,7 +129,6 @@ class ToyVpnService : VpnService() {
     ): DatagramChannel {
         val handshakeResponse = handshake(serverAddress, serverPort, secret)
         val vpnSettings = handshakeResponse.second
-        Log.w(LOG_TAG, "VPN settings: $vpnSettings")
 
         val builder = Builder()
 
@@ -146,16 +144,11 @@ class ToyVpnService : VpnService() {
         vpnInterface = builder.establish()
         vpnConnected.set(true)
 
-        Log.w(
-            LOG_TAG,
-            "vpnInterface: $vpnInterface, ${vpnInterface?.fileDescriptor}",
-        )
         val intent =
             Intent(BroadcastActions.VPN_SERVICE_STARTED).apply {
                 putExtra("clientAddress", vpnSettings.clientAddress)
             }
         sendBroadcast(intent)
-        Log.w(LOG_TAG, "broadcast ${BroadcastActions.VPN_SERVICE_STARTED}")
         return handshakeResponse.first
     }
 
@@ -173,7 +166,6 @@ class ToyVpnService : VpnService() {
 
             var length = inputStream.read(packet.array())
             if (length > 0) {
-//                    Log.w(LOG_TAG, "Captured packet from device of length: $length")
                 packet.limit(length)
                 processPacket(packet.array())
                 tunnel.write(packet)
@@ -188,7 +180,6 @@ class ToyVpnService : VpnService() {
                 packet.limit(length)
                 packet.flip()
                 if (packet.get(0).toInt() != 0) {
-//                        Log.w(LOG_TAG, "Captured packet from tunnel of length: $length")
                     processPacket(packet.array())
                     outputStream.write(packet.array(), 0, length)
                 } else if (length > 1) {
@@ -239,7 +230,7 @@ class ToyVpnService : VpnService() {
                     Intent(BroadcastActions.VPN_SERVICE_PACKET_ARRIVED).apply {
                         putParcelableArrayListExtra("packetData", ArrayList(packetDataList))
                     }
-                Log.w(LOG_TAG, "sending ${packetDataList.size} packet data")
+
                 sendBroadcast(intent)
                 packetDataList.clear()
                 lastPacketDataSentTimestamp = curTimestamp
@@ -253,8 +244,6 @@ class ToyVpnService : VpnService() {
         secret: String,
         protectTunnel: Boolean = true,
     ): Pair<DatagramChannel, VpnSettings> {
-        Log.w(LOG_TAG, "Starting handshake")
-
         if (secret.length > MAX_SECRET_LENGTH) {
             throw IllegalArgumentException("Secret is too long, max allowed length is $MAX_SECRET_LENGTH")
         }
@@ -263,11 +252,10 @@ class ToyVpnService : VpnService() {
         if (protectTunnel && !protect(tunnel.socket())) {
             throw IllegalStateException("Cannot protect the tunnel")
         }
-        Log.w(LOG_TAG, "Opened channel")
+
         val socketAddress = InetSocketAddress(serverAddress, serverPort)
         tunnel.connect(socketAddress)
         tunnel.configureBlocking(false)
-        Log.w(LOG_TAG, "Channel connected")
 
         val packet = ByteBuffer.allocate(MAX_SECRET_LENGTH + 1)
         val secretAsByteArray = byteArrayOf(0) + secret.encodeToByteArray()
@@ -276,7 +264,6 @@ class ToyVpnService : VpnService() {
         if (tunnel.write(packet) != secretAsByteArray.size) {
             throw IllegalStateException("Failed to send control packet to tunnel")
         }
-        Log.w(LOG_TAG, "Sent secret")
 
         packet.clear()
 
@@ -291,7 +278,6 @@ class ToyVpnService : VpnService() {
                 try {
                     val response =
                         String(packet.array(), 1, length - 1, US_ASCII).trim { it <= ' ' }
-                    Log.w(LOG_TAG, "Got handshake response: $response")
                     return Pair(tunnel, VpnSettings.fromParamString(response))
                 } catch (ex: Exception) {
                     throw IllegalStateException("Cannot parse the handshake response from the server")
@@ -317,9 +303,6 @@ class ToyVpnService : VpnService() {
                         val disconnectAsByteArray = byteArrayOf(0) + DISCONNECT_MESSAGE.encodeToByteArray()
                         packet.put(disconnectAsByteArray).flip()
 
-                        if (vpnTunnel.write(packet) != disconnectAsByteArray.size) {
-                            Log.e(LOG_TAG, "Couldn't send disconnect message to the server")
-                        }
                         vpnTunnel.close()
                         vpnInterface?.close()
                         vpnInterface = null
@@ -343,14 +326,13 @@ class ToyVpnService : VpnService() {
             Intent(BroadcastActions.VPN_SERVICE_ERROR).apply {
                 putExtra("errorMessage", errorMessage)
             }
-        Log.w(LOG_TAG, "Sending broadcast on error: $errorMessage")
+
         sendBroadcast(intent)
 
         stopSelf()
     }
 
     override fun onDestroy() {
-        Log.w(LOG_TAG, "!!!!!!! Got to onDestroy !!!!!!!")
         super.onDestroy()
 
         disconnectVpn()
@@ -359,7 +341,6 @@ class ToyVpnService : VpnService() {
 
         val intent = Intent(BroadcastActions.VPN_SERVICE_STOPPED)
         sendBroadcast(intent)
-        Log.w(LOG_TAG, "broadcast ${BroadcastActions.VPN_SERVICE_STOPPED}")
     }
 
     override fun onRevoke() {

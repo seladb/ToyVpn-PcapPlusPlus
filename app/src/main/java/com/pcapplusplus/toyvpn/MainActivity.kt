@@ -21,7 +21,7 @@ class MainActivity : ComponentActivity() {
     private val vpnPrepareResultLauncher =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
             if (result.resultCode != RESULT_OK) {
-                Log.e("MainActivity", "VPN permission not granted")
+                Log.e("ToyVpnMainActivity", "VPN permissions not granted")
                 finish()
             }
         }

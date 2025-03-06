@@ -10,7 +10,7 @@ class PacketProcessor(private val pcapPlusPlusInterface: PcapPlusPlusInterface =
             val result = String(pcapPlusPlusInterface.analyzePacket(rawPacketData))
             return Json.decodeFromString<PacketData>(result)
         } catch (e: Exception) {
-            Log.e("ToyVpnPacketAnalyzer", "Error in processing packet", e)
+            Log.e("ToyVpnPacketProcessor", "Error in processing packet", e)
             return null
         }
     }

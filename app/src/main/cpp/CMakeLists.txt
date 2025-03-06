@@ -18,15 +18,6 @@ include_directories(
 set(API_VERSION ${ANDROID_PLATFORM})
 string(REPLACE "android-" "" API_VERSION ${API_VERSION})
 
-#target_link_libraries(
-#  pcapplusplus_interface
-#  ${CMAKE_SOURCE_DIR}/../../../libs/pcapplusplus/${ANDROID_ABI}/${API_VERSION}/libPcap++.a
-#  ${CMAKE_SOURCE_DIR}/../../../libs/pcapplusplus/${ANDROID_ABI}/${API_VERSION}/libPacket++.a
-#  ${CMAKE_SOURCE_DIR}/../../../libs/pcapplusplus/${ANDROID_ABI}/${API_VERSION}/libCommon++.a
-#  ${CMAKE_SOURCE_DIR}/../../../libs/libpcap-android/${ANDROID_ABI}/${API_VERSION}/libpcap.a
-#  log
-#  android
-#)
 target_link_libraries(
     pcapplusplus_interface
     ${CMAKE_SOURCE_DIR}/../../../libs/pcapplusplus/${ANDROID_ABI}/30/libPcap++.a

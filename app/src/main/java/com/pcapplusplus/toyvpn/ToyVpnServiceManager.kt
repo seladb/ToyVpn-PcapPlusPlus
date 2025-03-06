@@ -7,7 +7,6 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.net.VpnService
 import android.os.Build
-import android.util.Log
 import androidx.activity.result.ActivityResultLauncher
 import com.pcapplusplus.toyvpn.model.BroadcastActions
 import com.pcapplusplus.toyvpn.model.PacketData
@@ -71,10 +70,6 @@ class ToyVpnServiceManager(
                             val packetDataList =
                                 intent.getParcelableArrayListExtraCompat<PacketData>("packetData")
                             if (packetDataList != null) {
-                                Log.w(
-                                    "ToyVpnServiceManager",
-                                    "got packetDataList of size ${packetDataList.size}",
-                                )
                                 for (packetDataHandler in packetDataHandlers) {
                                     packetDataHandler.onPacketDataArrives(packetDataList)
                                 }
@@ -106,7 +101,6 @@ class ToyVpnServiceManager(
         } else {
             context.registerReceiver(vpnStateReceiver, filter)
         }
-        Log.w("ToyVpnServiceManager", "registerReceiver done, $vpnStateReceiver!!")
     }
 
     init {

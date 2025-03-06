@@ -11,9 +11,9 @@
 #include <string>
 #include <vector>
 
-#define LOG_TAG "ToyVpnNativeCode"
-
-#define LOGW(...) __android_log_print(ANDROID_LOG_WARN, LOG_TAG, __VA_ARGS__)
+//#define LOG_TAG "ToyVpnNativeCode"
+//
+//#define LOGW(...) __android_log_print(ANDROID_LOG_WARN, LOG_TAG, __VA_ARGS__)
 
 void analyzeDnsPacket(const pcpp::Packet &packet,
                       std::ostringstream &jsonStream) {
@@ -80,8 +80,6 @@ Java_com_pcapplusplus_toyvpn_pcapplusplus_PcapPlusPlusInterface_analyzePacketNat
 
     std::vector<uint8_t> packetVector(rawPacketData, rawPacketData + length);
 
-    // TODO: Check if there's a better way to get the time now and convert to
-    // timespec
     auto now = std::chrono::system_clock::now();
     auto duration = now.time_since_epoch();
     auto seconds = std::chrono::duration_cast<std::chrono::seconds>(duration);
@@ -96,8 +94,6 @@ Java_com_pcapplusplus_toyvpn_pcapplusplus_PcapPlusPlusInterface_analyzePacketNat
                               false, pcpp::LINKTYPE_DLT_RAW1);
 
     pcpp::Packet packet(&rawPacket);
-
-    //    LOGW("%s", packet.toString().c_str());
 
     std::ostringstream jsonStream;
     jsonStream << "{";

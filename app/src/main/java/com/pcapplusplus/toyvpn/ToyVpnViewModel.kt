@@ -1,6 +1,5 @@
 package com.pcapplusplus.toyvpn
 
-import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -54,20 +53,17 @@ class ToyVpnViewModel(private val vpnServiceManager: ToyVpnServiceManager) :
     init {
         viewModelScope.launch {
             vpnServiceManager.vpnServiceState.collect { vpnServiceState ->
-                Log.w("ToyVpnViewModel", "Updating _vpnConnected.value to $vpnServiceState !!!!!!!")
                 _vpnConnectionState.value = vpnServiceState
             }
         }
         viewModelScope.launch {
             vpnServiceManager.vpnConnectionError.collect { errorMessage ->
                 _vpnConnectionError.value = errorMessage
-                Log.w("ToyVpnViewModel", "Got error message: $errorMessage")
             }
         }
         viewModelScope.launch {
             vpnServiceManager.clientAddress.collect { clientAddress ->
                 _clientAddress.value = clientAddress
-                Log.w("ToyVpnViewModel", "Client address: $clientAddress")
             }
         }
         vpnServiceManager.registerPacketDataHandler(this)
@@ -102,20 +98,15 @@ class ToyVpnViewModel(private val vpnServiceManager: ToyVpnServiceManager) :
         _topTlsServerNames.postValue(listOf())
 
         viewModelScope.launch {
-            Log.w("ToyVpnViewModel", "Running vpnServiceManager.startVpnService !!!!!!!")
             vpnServiceManager.startVpnService(serverAddress, serverPort, secret)
         }
     }
 
     fun disconnectVpn() {
-        viewModelScope.launch {
-            Log.w("ToyVpnViewModel", "Running vpnServiceManager.stopVpnService !!!!!!!")
-            vpnServiceManager.stopVpnService()
-        }
+        viewModelScope.launch { vpnServiceManager.stopVpnService() }
     }
 
     override fun onPacketDataArrives(packetDataList: ArrayList<PacketData>) {
-        Log.w("ToyVpnViewModel", "handling packetDataList of size ${packetDataList.size}")
         var ipv4Count = 0
         var ipv6Count = 0
         var tcpCount = 0
