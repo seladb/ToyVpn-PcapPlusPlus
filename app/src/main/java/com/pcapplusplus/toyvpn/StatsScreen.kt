@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBars
+import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.rememberScrollState
@@ -95,7 +96,10 @@ fun StatsScreen(
                         WindowInsets.statusBars
                             .asPaddingValues()
                             .calculateTopPadding(),
-                    bottom = 40.dp,
+                    bottom =
+                        WindowInsets.systemBars
+                            .asPaddingValues()
+                            .calculateBottomPadding(),
                     start = 16.dp,
                     end = 16.dp,
                 )
@@ -107,7 +111,7 @@ fun StatsScreen(
             modifier =
                 Modifier
                     .align(Alignment.CenterHorizontally)
-                    .padding(bottom = 16.dp),
+                    .padding(bottom = 16.dp, top = 16.dp),
         )
 
         StatsCard(
@@ -172,6 +176,8 @@ fun StatsScreen(
                 Text("Disconnect")
             }
         }
+
+        Spacer(modifier = Modifier.height(16.dp))
     }
 }
 
