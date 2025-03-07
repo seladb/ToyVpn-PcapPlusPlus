@@ -4,6 +4,48 @@
 #include "libs/pcapplusplus/include/pcapplusplus/IpAddress.h"
 #include <ostream>
 
+class IpTablesCommand {
+  public:
+    IpTablesCommand(const std::string &commandTemplate)
+        : m_CommandTemplate(commandTemplate) {}
+
+    void run(bool enable) {
+        std::string replacement = enable ? "-A" : "-D";
+        std::string command = m_CommandTemplate;
+
+        auto pos = command.find(templateString);
+        if (pos != std::string::npos) {
+            command.replace(pos, templateString.length(), replacement);
+            int result = std::system(command.c_str());
+            if (result != 0) {
+                throw std::runtime_error("Couldn't configure NAT: '" + command +
+                                         "'");
+            }
+
+            if (enable) {
+                TOYVPN_LOG_DEBUG("Configured iptables: '" << command << "'");
+            } else {
+                TOYVPN_LOG_DEBUG("Disabled iptables: '" << command << "'");
+            }
+
+            m_CommandRun = true;
+        }
+    }
+
+    void rollback() {
+        if (m_CommandRun) {
+            run(false);
+            m_CommandRun = false;
+        }
+    }
+
+    constexpr static std::string_view templateString = "{enable}";
+
+  private:
+    std::string m_CommandTemplate;
+    bool m_CommandRun = false;
+};
+
 class NatAndRoutingWrapper {
   public:
     virtual ~NatAndRoutingWrapper() {
@@ -30,26 +72,42 @@ class NatAndRoutingWrapper {
     bool m_IsInitialized = false;
 
     void configureNat(bool enable) {
-        auto enableFlag = enable ? "-A" : "-D";
+        std::ostringstream iptablesPostRoutingCommandStream;
+        iptablesPostRoutingCommandStream
+            << "iptables -t nat " << IpTablesCommand::templateString
+            << " POSTROUTING -s " << m_PrivateNetwork.toString() << " -o "
+            << m_PublicNetworkInterface << " -j MASQUERADE";
+        IpTablesCommand iptablesPostRoutingCommand(
+            iptablesPostRoutingCommandStream.str());
 
-        std::ostringstream iptablesCommand;
-        iptablesCommand << "iptables -t nat " << enableFlag
-                        << " POSTROUTING -s " << m_PrivateNetwork.toString()
-                        << " -o " << m_PublicNetworkInterface
-                        << " -j MASQUERADE";
+        std::ostringstream iptablesForwardCommandStream;
+        iptablesForwardCommandStream
+            << "iptables"
+            << " " << IpTablesCommand::templateString << " FORWARD"
+            << " -i " << m_TunInterfaceName << " -o "
+            << m_PublicNetworkInterface << " -j ACCEPT";
+        IpTablesCommand iptablesForwardCommand(
+            iptablesForwardCommandStream.str());
 
-        int result = std::system(iptablesCommand.str().c_str());
-        if (result != 0) {
-            throw std::runtime_error("Couldn't configure NAT: '" +
-                                     iptablesCommand.str() + "'");
-        }
+        std::ostringstream iptablesForwardCommandReverseStream;
+        iptablesForwardCommandReverseStream
+            << "iptables"
+            << " " << IpTablesCommand::templateString << " FORWARD"
+            << " -i " << m_PublicNetworkInterface << " -o "
+            << m_TunInterfaceName << " -j ACCEPT";
+        IpTablesCommand iptablesForwardCommandReverse(
+            iptablesForwardCommandReverseStream.str());
 
-        if (enable) {
-            TOYVPN_LOG_DEBUG("Configuring NAT: '" << iptablesCommand.str()
-                                                  << "'");
-        } else {
-            TOYVPN_LOG_DEBUG("Disabling NAT: '" << iptablesCommand.str()
-                                                << "'");
+        try {
+            iptablesPostRoutingCommand.run(enable);
+            iptablesForwardCommand.run(enable);
+            iptablesForwardCommandReverse.run(enable);
+        } catch (const std::exception &) {
+            iptablesPostRoutingCommand.rollback();
+            iptablesForwardCommand.rollback();
+            iptablesForwardCommandReverse.rollback();
+
+            throw;
         }
     }
 
