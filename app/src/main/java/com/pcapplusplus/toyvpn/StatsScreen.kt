@@ -237,18 +237,17 @@ fun TrafficStatRow(stat: TrafficStat) {
         Text(
             text = stat.label,
             style = MaterialTheme.typography.titleMedium.copy(fontSize = 20.sp),
-            modifier = Modifier.wrapContentWidth(Alignment.Start).testTag("${stat.testTag}_label"),
+            modifier = Modifier.wrapContentWidth(Alignment.Start).padding(end = 5.dp).weight(3f).testTag("${stat.testTag}_label"),
         )
-        Spacer(modifier = Modifier.width(8.dp))
         ProgressBar(
-            modifier = Modifier.weight(1f).testTag("${stat.testTag}_progress"),
+            modifier = Modifier.weight(10f).testTag("${stat.testTag}_progress"),
             count = stat.count,
             total = if (stat.total != 0) stat.total else 1,
         )
         Text(
             text = stat.count.humanize(),
             style = MaterialTheme.typography.titleMedium.copy(fontSize = 20.sp),
-            modifier = Modifier.align(Alignment.CenterVertically).testTag("${stat.testTag}_count"),
+            modifier = Modifier.align(Alignment.CenterVertically).padding(start = 5.dp).weight(4f).testTag("${stat.testTag}_count"),
             textAlign = TextAlign.End,
         )
     }
