@@ -163,6 +163,48 @@ class StatsScreenTest {
     }
 
     @Test
+    fun testHumanizePacketCount() {
+        val totalPacketCount = 996099
+        val ipv4PacketCount = 123
+        val ipv6PacketCount = 1234
+        val tcpPacketCount = 12_345
+        val udpPacketCount = 122_000
+        val dnsPacketCount = 4_599_888
+        val tlsPacketCount = 34_829_007
+        val tcpConnectionCount = 999_999_999
+        val udpConnectionCount = 1_000_990_000
+
+        renderScreen(
+            totalPacketCount = totalPacketCount,
+            ipv4PacketCount = ipv4PacketCount,
+            ipv6PacketCount = ipv6PacketCount,
+            tcpPacketCount = tcpPacketCount,
+            udpPacketCount = udpPacketCount,
+            dnsPacketCount = dnsPacketCount,
+            tlsPacketCount = tlsPacketCount,
+            tcpConnectionCount = tcpConnectionCount,
+            udpConnectionCount = udpConnectionCount,
+        )
+
+        val expectedValues =
+            listOf(
+                Pair("IPv4", "123"),
+                Pair("IPv6", "1234"),
+                Pair("TCP", "12.35K"),
+                Pair("UDP", "122K"),
+                Pair("DNS", "4.6M"),
+                Pair("TLS", "34.83M"),
+                Pair("TCPConn", "1B"),
+                Pair("UDPConn", "1.001B"),
+            )
+
+        composeTestRule.onNodeWithText("Total Packets").onSibling().assertTextEquals(totalPacketCount.toString())
+        expectedValues.forEach { (testTag, humanizedCount) ->
+            composeTestRule.onNodeWithTag("${testTag}_count").assertTextEquals(humanizedCount)
+        }
+    }
+
+    @Test
     fun testVpnConnectedWithTopDnsDomainData() {
         val topDnsDomains =
             listOf(

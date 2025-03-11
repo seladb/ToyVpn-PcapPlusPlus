@@ -246,7 +246,7 @@ fun TrafficStatRow(stat: TrafficStat) {
             total = if (stat.total != 0) stat.total else 1,
         )
         Text(
-            text = stat.count.toString(),
+            text = stat.count.humanize(),
             style = MaterialTheme.typography.titleMedium.copy(fontSize = 20.sp),
             modifier = Modifier.align(Alignment.CenterVertically).testTag("${stat.testTag}_count"),
             textAlign = TextAlign.End,
