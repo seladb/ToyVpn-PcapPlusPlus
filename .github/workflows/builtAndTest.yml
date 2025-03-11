@@ -12,7 +12,7 @@ jobs:
   build-and-test-client:
     strategy:
       matrix:
-        api-level: [30, 35]
+        api-level: [30, 33, 35]
 
     runs-on: ubuntu-latest
 
