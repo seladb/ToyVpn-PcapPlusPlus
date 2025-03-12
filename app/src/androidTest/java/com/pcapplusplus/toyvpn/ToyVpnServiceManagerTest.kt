@@ -4,6 +4,7 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
+import android.util.Log
 import androidx.activity.result.ActivityResultLauncher
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -133,12 +134,19 @@ class ToyVpnServiceManagerTest {
                     putExtra("clientAddress", "10.0.0.1")
                 }
 
+            Log.e("TestReceiveVpnStartedAndStoppedEvent", "Before sending first broadcast")
             context.sendBroadcast(intent)
+            Log.e("TestReceiveVpnStartedAndStoppedEvent", "After sending first broadcast")
             waitFor { serviceManager.vpnServiceState.value == VpnConnectionState.CONNECTED }
+            Log.e("TestReceiveVpnStartedAndStoppedEvent", "Passed first waitFor")
             waitFor { serviceManager.clientAddress.value == "10.0.0.1" }
+            Log.e("TestReceiveVpnStartedAndStoppedEvent", "Passed second waitFor")
 
+            Log.e("TestReceiveVpnStartedAndStoppedEvent", "Before sending second broadcast")
             context.sendBroadcast(Intent(BroadcastActions.VPN_SERVICE_STOPPED))
+            Log.e("TestReceiveVpnStartedAndStoppedEvent", "After sending second broadcast")
             waitFor { serviceManager.vpnServiceState.value == VpnConnectionState.DISCONNECTED }
+            Log.e("TestReceiveVpnStartedAndStoppedEvent", "Passed third waitFor")
         }
 
     @Test
