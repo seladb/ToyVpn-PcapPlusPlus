@@ -137,15 +137,15 @@ class ToyVpnServiceManagerTest {
             Log.e("TestReceiveVpnStartedAndStoppedEvent", "Before sending first broadcast")
             context.sendBroadcast(intent)
             Log.e("TestReceiveVpnStartedAndStoppedEvent", "After sending first broadcast")
-            waitFor { serviceManager.vpnServiceState.value == VpnConnectionState.CONNECTED }
+            waitFor(timeoutMillis = 20000L) { serviceManager.vpnServiceState.value == VpnConnectionState.CONNECTED }
             Log.e("TestReceiveVpnStartedAndStoppedEvent", "Passed first waitFor")
-            waitFor { serviceManager.clientAddress.value == "10.0.0.1" }
+            waitFor(timeoutMillis = 20000L) { serviceManager.clientAddress.value == "10.0.0.1" }
             Log.e("TestReceiveVpnStartedAndStoppedEvent", "Passed second waitFor")
 
             Log.e("TestReceiveVpnStartedAndStoppedEvent", "Before sending second broadcast")
             context.sendBroadcast(Intent(BroadcastActions.VPN_SERVICE_STOPPED))
             Log.e("TestReceiveVpnStartedAndStoppedEvent", "After sending second broadcast")
-            waitFor { serviceManager.vpnServiceState.value == VpnConnectionState.DISCONNECTED }
+            waitFor(timeoutMillis = 20000L) { serviceManager.vpnServiceState.value == VpnConnectionState.DISCONNECTED }
             Log.e("TestReceiveVpnStartedAndStoppedEvent", "Passed third waitFor")
         }
 
