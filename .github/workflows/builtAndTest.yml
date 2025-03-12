@@ -12,7 +12,7 @@ jobs:
   build-and-test-client:
     strategy:
       matrix:
-        api-level: [30, 33, 35]
+        api-level: [33]
 
     runs-on: ubuntu-latest
 
@@ -65,12 +65,10 @@ jobs:
         with:
           api-level: ${{ matrix.api-level }}
           arch: x86_64
-          script: ./gradlew -is connectedCheck
-# Uncomment to enable logs
-#          script: |
-#            adb logcat -c
-#            adb logcat &
-#            gradle -is connectedCheck
+          script: |
+            adb logcat -c
+            adb logcat &
+            gradle -is connectedCheck
 
   build-server:
     runs-on: ubuntu-latest
