@@ -66,11 +66,11 @@ jobs:
           api-level: ${{ matrix.api-level }}
           arch: x86_64
           script: ./gradlew -is connectedCheck
-  # Uncomment to enable logs
-  #          script: |
-  #            adb logcat -c
-  #            adb logcat &
-  #            gradle -is connectedCheck
+# Uncomment to enable logs
+#          script: |
+#            adb logcat -c
+#            adb logcat &
+#            gradle -is connectedCheck
 
   build-server:
     runs-on: ubuntu-latest

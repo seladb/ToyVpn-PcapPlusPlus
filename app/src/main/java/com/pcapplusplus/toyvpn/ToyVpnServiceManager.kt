@@ -7,7 +7,6 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.net.VpnService
 import android.os.Build
-import android.util.Log
 import androidx.activity.result.ActivityResultLauncher
 import com.pcapplusplus.toyvpn.model.BroadcastActions
 import com.pcapplusplus.toyvpn.model.PacketData
@@ -57,24 +56,13 @@ class ToyVpnServiceManager(
             ) {
                 when (intent?.action) {
                     BroadcastActions.VPN_SERVICE_STARTED -> {
-                        Log.e("TestReceiveVpnStartedAndStoppedEvent", "Got VPN_SERVICE_STARTED event")
                         _vpnServiceState.value = VpnConnectionState.CONNECTED
                         _clientAddress.value = intent.getStringExtra("clientAddress")
-                        Log.e("TestReceiveVpnStartedAndStoppedEvent", "VPN_SERVICE_STARTED: _clientAddress.value = ${_clientAddress.value}")
-                        Log.e(
-                            "TestReceiveVpnStartedAndStoppedEvent",
-                            "VPN_SERVICE_STARTED: _vpnServiceState.value = ${_vpnServiceState.value}",
-                        )
                     }
 
                     BroadcastActions.VPN_SERVICE_STOPPED -> {
-                        Log.e("TestReceiveVpnStartedAndStoppedEvent", "Got VPN_SERVICE_STOPPED event")
                         _vpnServiceState.value = VpnConnectionState.DISCONNECTED
                         _clientAddress.value = null
-                        Log.e(
-                            "TestReceiveVpnStartedAndStoppedEvent",
-                            "VPN_SERVICE_STOPPED: _vpnServiceState.value = ${_vpnServiceState.value}",
-                        )
                     }
 
                     BroadcastActions.VPN_SERVICE_PACKET_ARRIVED -> {
