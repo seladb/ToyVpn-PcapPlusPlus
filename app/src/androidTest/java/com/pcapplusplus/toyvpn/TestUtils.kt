@@ -6,10 +6,9 @@ suspend fun waitFor(
     timeoutMillis: Long = 10000L,
     condition: () -> Boolean,
 ) {
-    var elapsedTime = 0L
-    while (!condition() && elapsedTime < timeoutMillis) {
+    val timeout = System.currentTimeMillis() + timeoutMillis
+    while (!condition() && System.currentTimeMillis() < timeout) {
         delay(10)
-        elapsedTime += 10
     }
     if (!condition()) {
         throw AssertionError("Condition not met within timeout")
