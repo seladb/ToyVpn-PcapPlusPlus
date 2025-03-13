@@ -1,37 +1,39 @@
 # ToyVPN Server 🌐
 
 ## Overview 🛠️
-This is the VPN server implemented in C++. It utilizes various networking libraries to handle packet forwarding, routing, and tunneling. The server is designed to manage VPN connections, forward traffic, and provide essential network functionalities.
+ToyVPN is a lightweight VPN server implemented in C++. It leverages **PcapPlusPlus** and various networking tools to handle packet forwarding, routing, and tunneling. The server is designed to efficiently manage VPN connections, forward traffic, and provide essential network functionalities.
 
-It is heavily inspired by Android ToyVpn and provides a robust solution for handling VPN connections.
+Inspired by [Android ToyVpn](https://android.googlesource.com/platform/development/+/master/samples/ToyVpn), this project offers a robust solution for handling VPN connections.
 
 ## Features 🚀
-- Supports multiple clients
-- Single-threaded, utilizing epoll for efficient event handling
-- Automatic configuration: creates tun interface, configures iptables and IP routing, and handles automatic teardown
-- Records pcapng files with traffic per VPN client
+- **Multi-client support**: Handles multiple VPN clients simultaneously.
+- **Efficient event handling**: Uses **epoll** for scalable performance.
+- **Automatic setup & teardown**:
+    - Creates a TUN interface dynamically.
+    - Configures **iptables** and **IP routing**.
+    - Cleans up configurations upon shutdown.
+- **Traffic logging**: Saves network traffic per client as **pcapng** files.
 
 ## Dependencies 🔗
 This project relies on the following libraries:
-- [PcapPlusPlus](https://github.com/seladb/PcapPlusPlus) for packet parsing and saving packets to pcapng files
-- [concurrentqueue](https://github.com/cameron314/concurrentqueue) for passing packets to save without interfering with the main processing thread
-- [argparse](https://github.com/p-ranav/argparse) for parsing CLI arguments
-- [AixLog](https://github.com/berkus/AixLog) for logging
+- **[PcapPlusPlus](https://github.com/seladb/PcapPlusPlus)** - Packet parsing & pcapng file generation.
+- **[concurrentqueue](https://github.com/cameron314/concurrentqueue)** - Non-blocking queue for efficient packet handling.
+- **[argparse](https://github.com/p-ranav/argparse)** - CLI argument parsing.
+- **[AixLog](https://github.com/berkus/AixLog)** - Logging framework.
 
-## Building the Project 🛠️
+## Building the Project 🏗️
 ### Prerequisites ✅
 Ensure you have the following installed:
-- A C++ compiler supporting C++17
-- CMake (version 3.20 or higher)
-- `libpcap-dev` (required for `pcapplusplus`)
+- A **C++17** compatible compiler.
+- **CMake** (version **3.20+**).
+- **libpcap-dev** (required for `pcapplusplus`).
 
 ### Installing PcapPlusPlus 📦
-- Go to the latest release page: https://github.com/seladb/PcapPlusPlus/releases
-- Download the relevant binary for your operating system
-- Extract the archive file under `libs/`
-- Rename the folder to `pcapplusplus`
+1. Download the latest release from: [PcapPlusPlus Releases](https://github.com/seladb/PcapPlusPlus/releases).
+2. Extract the archive into the `libs/` directory.
+3. Rename the extracted folder to `pcapplusplus`.
 
-### Build Instructions 🏗️
+### Build Instructions ⚒️
 ```sh
 mkdir build && cd build
 cmake ..
@@ -39,13 +41,16 @@ make
 ```
 
 ## Running the Server 🚀
+### Basic Usage
+The following command starts the VPN server:
 ```sh
 sudo ./ToyVpnServer --port 5678 --public-network-iface eth0 --secret my_secret
 ```
+- **Port:** `5678` (for incoming VPN connections).
+- **Public Network Interface:** `eth0` (provides Internet access).
+- **Secret Key:** `my_secret` (used for authentication).
 
-## How to Use ⚙️
-The server supports various CLI flags for configuration:
-
+### CLI Options ⚙️
 ```sh
 Usage: ToyVpnServer [--help] [--version] [-t, --tun VAR] --port VAR [--private-network VAR] --public-network-iface VAR --secret VAR [--route VAR] [--mtu VAR] [--dns-server VAR] [--save-to-files VAR] [--verbose]
 
@@ -66,40 +71,43 @@ Optional arguments:
 
 ## Architecture 🏛️
 ### Platform Support 🐧
-This server is designed to work exclusively on Linux.
+This server is **Linux-only** due to its reliance on platform-specific networking tools.
 
 ### Main Components 🔩
-- `EpollWrapper.h`: Manages event-driven networking
-- `ServerSocketWrapper.h`: Manages the UDP socket that listens to incoming clients
-- `ClientHandler.h`: Handles the lifecycle of individual VPN clients - connecting to a new client, performing the handshake protocol, managing traffic from the client to the external network and vice versa, handling client disconnection
-- `TunInterfaceWrapper.h`: Creates and manages the TUN interface used for the VPN connection
-- `NatAndRoutingWrapper.h`: Configures IP forwarding and routing. Uses `iptables` and `ip route`
-- `PacketHandler.h`: Run in a separate thread, accepts packets from the main thread and saves them to pcapng files per VPN client
-- `ToyVpnServer.h`: Orchestrates all of the above and manages the server lifecycle
+- **`EpollWrapper.h`** - Manages event-driven networking.
+- **`ServerSocketWrapper.h`** - Handles the UDP socket for client connections.
+- **`ClientHandler.h`** - Manages VPN client sessions, including:
+    - Connection establishment.
+    - Handshake protocol.
+    - Traffic forwarding.
+    - Disconnection handling.
+- **`TunInterfaceWrapper.h`** - Manages the TUN interface for VPN traffic.
+- **`NatAndRoutingWrapper.h`** - Configures NAT and routing using `iptables`.
+- **`PacketHandler.h`** - Runs in a separate thread to log VPN traffic.
+- **`ToyVpnServer.h`** - Orchestrates all components and manages the server lifecycle.
 
-### Flow 🔄
-1. The server initializes and sets up a TUN interface.
-2. It configures IP forwarding and routing.
-3. Opens a UDP socket and starts listening to incoming clients.
-4. Clients connect, go through the handshake protocol and establish a VPN session.
-5. Packets are forwarded between clients and the external network (Internet).
-6. If requested by the user, packets are also passed to a different thread for saving them to pcapng files.
-7. When a client disconnects, the server cleans up the resources.
-8. When the server shuts down it removes the TUN interface and restores the IP forwarding and routing configurations.
+### Server Flow 🔄
+1. Initializes and configures a **TUN interface**.
+2. Sets up **IP forwarding and routing**.
+3. Opens a **UDP socket** to listen for clients.
+4. Handles client **authentication** and **session establishment**.
+5. Forwards packets between clients and the external network.
+6. Saves network traffic logs (if enabled).
+7. Cleans up resources upon client disconnection or server shutdown.
 
 ### Handshake Protocol 🤝
-The handshake process establishes a connection between the client and the server, exchanging configuration details and authentication data:
-1. The client connects to the UDP socket the server listens on
-2. It sends the secret to the server and the server verifies the secret
-3. The server allocates a new internal IP address for the client and send configuration parameters to the client that include:
-    - Client internal IP address
-    - The forwarding route (`0.0.0.0/0` by default)
-    - MTU
-    - DNS server to use if configured by the server
-4. The client sends control packets once in a while to indicate it's still connected
-5. When a client wants to disconnect, it sends a special control message
-6. If the server shuts down, it sends a special disconnect control message to all connected clients
+1. The client connects to the UDP port.
+2. It sends the **secret key** for authentication.
+3. If valid, the server:
+    - Assigns an **internal IP** to the client.
+    - Sends the **routing parameters**.
+    - Provides **DNS settings** (if configured).
+    - Sets **MTU**.
+4. The client sends **keep-alive** packets periodically.
+5. Disconnection occurs via:
+    - Explicit **client request**.
+    - **Server shutdown** (broadcasts a disconnect message).
 
 ## License 📜
-This project is licensed under the MIT License.
+This project is licensed under the **MIT License**.
 
