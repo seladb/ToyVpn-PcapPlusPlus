@@ -1,4 +1,4 @@
-# ToyVPN PcapPlusPlus
+# 🛡️ ToyVPN PcapPlusPlus 🌐
 
 ## Table of Contents
 
