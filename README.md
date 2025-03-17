@@ -1,5 +1,15 @@
 # ToyVPN PcapPlusPlus
 
+## Table of Contents
+
+- [Overview](#overview-️)
+- [Features](#features-)
+- [Using the App](#using-the-app-)
+- [Technical Details](#technical-details-)
+    - [Main Components](#main-components-)
+    - [Application Flows](#application-flows-)
+- [License](#license-)
+
 ## Overview 🛠️
 
 ToyVPN PcapPlusPlus is an Android application designed for monitoring and analyzing network traffic on an Android device.
@@ -40,7 +50,7 @@ In order to run the app you need to first build and run the server which needs t
 a separate Linux machine (see instructions [here](server/README.md#building-the-project-️)).
 Then you can run the app
 
-https://github.com/user-attachments/assets/e53a8f15-b8a0-4d3d-9836-8a0f2861a0b9
+https://github.com/user-attachments/assets/82a2b9b1-85b5-420e-aa88-88ef54bdc77f
 
 The app connects to the VPN server, which then routes traffic to the internet. To use the app:
 1. **Set up the VPN server** on a separate Linux machine (see [server setup instructions](server/README.md#building-the-project-️)).
@@ -144,3 +154,6 @@ The following diagrams illustrate the core workflows of the app:
 <img src="docs/ForwardNetworkTraffic.svg"/>
 
 <img src="docs/Disconnect.svg"/>
+
+## License 📜
+This project is licensed under the **MIT License**.
