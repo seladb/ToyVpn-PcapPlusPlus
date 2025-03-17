@@ -1,0 +1,12 @@
+title Disconnect
+
+participant App
+participant ToyVpnService
+participant VPN Server
+
+App->ToyVpnService: Disconnect
+ToyVpnService->VPN Server: Send DISCONNECT control message
+VPN Server->VPN Server: Disconnect client
+ToyVpnService->ToyVpnService: Stop forward traffic loop
+ToyVpnService->ToyVpnService: Stop VPN service
+ToyVpnService->App: Broadcast message: VPN disconnected

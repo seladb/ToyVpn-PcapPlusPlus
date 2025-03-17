@@ -1,0 +1,17 @@
+title Forward Netwrok Traffic
+
+participant Device
+participant App
+participant ToyVpnService
+participant PcapPlusPlusInterface
+participant VPN Server
+
+
+Device->ToyVpnService: Packet
+ToyVpnService->PcapPlusPlusInterface: Analyze packet
+PcapPlusPlusInterface->PcapPlusPlusInterface: Analyze packet - native code
+PcapPlusPlusInterface-->ToyVpnService: Packet data (JSON)
+ToyVpnService->ToyVpnService: Accumulate several packet datas
+ToyVpnService->App: Broadcast message: Array<PacketData>
+ToyVpnService->VPN Server: Packet
+App->App: Update UI

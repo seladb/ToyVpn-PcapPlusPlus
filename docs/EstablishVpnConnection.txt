@@ -1,0 +1,12 @@
+title Establish VPN Connection
+
+participant App
+participant ToyVpnService
+participant VPN Server
+
+App->ToyVpnService: Connect to server (server address, port, secret)
+ToyVpnService->VPN Server: Open a UDP connection
+ToyVpnService->VPN Server: Send the secret
+VPN Server->ToyVpnService: Send VPN settings:\n  - Client address\n  - MTU\n  - Route address\n  - DNS server
+ToyVpnService->ToyVpnService: Set up and establish VPN on the device
+ToyVpnService->App: Broadcast message: VPN connected
