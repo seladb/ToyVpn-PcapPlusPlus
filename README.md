@@ -1,4 +1,9 @@
-# 🛡️ ToyVPN PcapPlusPlus 🌐
+<div align="center">
+<img src="docs/logo.png"/>
+
+[![Build and Test](https://github.com/seladb/ToyVpn-PcapPlusPlus/actions/workflows/builtAndTest.yml/badge.svg)](https://github.com/seladb/ToyVpn-PcapPlusPlus/actions/workflows/builtAndTest.yml)
+
+</div>
 
 ## Table of Contents
 
