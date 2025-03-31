@@ -14,7 +14,7 @@ android {
     defaultConfig {
         applicationId = "com.pcapplusplus.toyvpn"
         minSdk = 26
-        targetSdk = 35
+        targetSdk = 36
         versionCode = 1
         versionName = "1.0"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
@@ -29,6 +29,21 @@ android {
             )
         }
     }
+
+    splits {
+        abi {
+            isEnable = true
+            reset()
+
+            val abiFilterFromProperty = project.findProperty("abiFilter") as? String
+            if (!abiFilterFromProperty.isNullOrEmpty()) {
+                include(abiFilterFromProperty)
+            } else {
+                include("armeabi-v7a", "arm64-v8a", "x86", "x86_64")
+            }
+        }
+    }
+
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
