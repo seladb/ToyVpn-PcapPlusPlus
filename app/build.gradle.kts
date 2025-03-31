@@ -29,6 +29,21 @@ android {
             )
         }
     }
+
+    splits {
+        abi {
+            isEnable = true
+            reset()
+
+            val abiFilterFromProperty = project.findProperty("abiFilter") as? String
+            if (!abiFilterFromProperty.isNullOrEmpty()) {
+                include(abiFilterFromProperty)
+            } else {
+                include("armeabi-v7a", "arm64-v8a", "x86", "x86_64")
+            }
+        }
+    }
+
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
