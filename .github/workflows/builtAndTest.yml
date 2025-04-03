@@ -33,7 +33,13 @@ jobs:
           extract: true
 
       - name: Rename PcapPlusPlus directory
-        run: mv $GITHUB_WORKSPACE/app/libs/pcapplusplus-${PCAPPLUSPLUS_LATEST_VERSION}-android $GITHUB_WORKSPACE/app/libs/pcapplusplus
+        run: |
+          mv $GITHUB_WORKSPACE/app/libs/pcapplusplus-${PCAPPLUSPLUS_LATEST_VERSION}-android $GITHUB_WORKSPACE/app/libs/pcapplusplus
+          echo Remove these lines when PcapPlusPlus release is built with API level >= 35 
+          mv $GITHUB_WORKSPACE/app/libs/pcapplusplus/arm64-v8a/30 $GITHUB_WORKSPACE/app/libs/pcapplusplus/arm64-v8a/35
+          mv $GITHUB_WORKSPACE/app/libs/pcapplusplus/armeabi-v7a/30 $GITHUB_WORKSPACE/app/libs/pcapplusplus/armeabi-v7a/35
+          mv $GITHUB_WORKSPACE/app/libs/pcapplusplus/x86/30 $GITHUB_WORKSPACE/app/libs/pcapplusplus/x86/35
+          mv $GITHUB_WORKSPACE/app/libs/pcapplusplus/x86_64/30 $GITHUB_WORKSPACE/app/libs/pcapplusplus/x86_64/35
 
       - name: Set up JDK
         uses: actions/setup-java@v4
