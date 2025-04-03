@@ -11,13 +11,14 @@ kotlinxSerializationJson = "1.8.1"
 lifecycleRuntimeKtx = "2.8.7"
 activityCompose = "1.9.3"
 composeBom = "2024.04.01"
-mockk = "1.12.0"
-mockkMockkAndroid = "1.13.16"
+mockk = "1.13.17"
+mockkMockkAndroid = "1.13.17"
 navigationCompose = "2.8.5"
 runtimeLivedata = "1.7.6"
 junitJupiter = "5.8.1"
 coreKtxVersion = "1.6.1"
 junitKtx = "1.2.1"
+ktlintPlugin = "12.2.0"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -50,4 +51,4 @@ androidx-junit-ktx = { group = "androidx.test.ext", name = "junit-ktx", version.
 android-application = { id = "com.android.application", version.ref = "agp" }
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
-
+ktlint-gradle = { id = "org.jlleitschuh.gradle.ktlint", version.ref = "ktlintPlugin"}
