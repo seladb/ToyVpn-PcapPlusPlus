@@ -1,3 +1,6 @@
 **/*.pcapng
 libs/pcapplusplus/*
 build/*
+/.idea
+/build
+/cmake-build*
