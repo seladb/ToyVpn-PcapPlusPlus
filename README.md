@@ -10,6 +10,7 @@
 - [Overview](#overview-️)
 - [Features](#features-)
 - [Using the App](#using-the-app-)
+- [Build and run instructions](#build-and-run-instructions-)
 - [Technical Details](#technical-details-)
     - [Main Components](#main-components-)
     - [Application Flows](#application-flows-)
